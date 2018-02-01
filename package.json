@@ -1,0 +1,32 @@
+{
+	"name": "@imba/runner",
+	"version": "0.0.1",
+	"license": "MIT",
+	"author": {
+		"name": "David Kudera",
+		"email": "kudera.d@gmail.com",
+		"url": "https://www.davidkudera.com/"
+	},
+	"bin": {
+		"imba": "./lib/main.js"
+	},
+	"dependencies": {
+		"chalk": "^2.3.0",
+		"js-yaml": "^3.10.0",
+		"lodash": "^4.17.4",
+		"term-size": "^1.2.0"
+	},
+	"devDependencies": {
+		"@types/js-yaml": "^3.10.1",
+		"@types/lodash": "^4.14.99",
+		"@types/node": "^9.4.0",
+		"@types/yargs": "^10.0.1",
+		"typescript": "^2.7.1",
+		"yargs": "^11.0.0"
+	},
+	"scripts": {
+		"prepublish": "tsc",
+		"build": "tsc",
+		"watch": "tsc --watch"
+	}
+}

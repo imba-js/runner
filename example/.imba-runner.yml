@@ -1,0 +1,38 @@
+projects:
+
+  js:a:
+    root: ./js_a
+
+  js:b:
+    root: ./js_b
+
+  php:a:
+    root: ./php_a
+
+scripts:
+
+  deps:install:
+    before_script: echo "Starting to install dependencies"
+    script: yarn install
+    after_script: echo "Return code from installation was ${IMBA_SCRIPT_RETURN_CODE}"
+    projects:
+      php:a:
+        script: composer install
+
+  run:dev:
+    except: [js:b]
+    environment:
+      ENVIRONMENT: dev
+    script:
+      - env
+      - date
+      - exit 1    # let's fail here
+      - uptime
+
+  run:prod:
+    only: [js:a]
+    environment:
+      ENVIRONMENT: prod
+    script:
+      - date
+      - uptime
