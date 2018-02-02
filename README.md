@@ -1,6 +1,6 @@
 # imba-runner
 
-`imba` command allows you to easily manage and run commands in your monolithic repository.
+`imba` command allows you to easily manage and run shell commands in your monolithic repository.
 
 It's almost as if some parts of `docker-compose.yml`, `.gitlab-ci.yml` and `package.json` files had sex and this was 
 their child.
@@ -43,6 +43,12 @@ Now you can run for example the `build` script like this:
 ```bash
 $ imba run build
 ```
+
+## Benefits
+
+* Wrap difficult and long commands into easy to remember script
+* Create list of all your scripts so each developer knows about them
+* Execute many commands with just one script
 
 ## Installation
 
