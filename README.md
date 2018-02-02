@@ -206,3 +206,8 @@ or use `-d` alias:
 ```bash
 $ imba -d /path/to/monorepo <command>
 ```
+
+## About Lerna
+
+If your repository contains only JS code and nothing else, you should probably consider using 
+[lerna](https://lernajs.io/). And I suggest using [yarn workspaces](https://yarnpkg.com/lang/en/docs/workspaces/) too.
