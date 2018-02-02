@@ -8,7 +8,17 @@ import * as _ from 'lodash';
 
 export async function runScript(config: ImbaConfiguration, script: string): Promise<number>
 {
+	const dependencies = config.scripts[script].dependencies;
 	const projects = config.scripts[script].projects;
+
+	if (dependencies.length) {
+		for (let i = 0; i < dependencies.length; i++) {
+			await runScript(config, dependencies[i]);
+		}
+
+		console.log('');
+	}
+
 	let returnCode = 0;
 	let i = 0;
 

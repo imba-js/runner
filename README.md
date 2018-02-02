@@ -181,6 +181,21 @@ scripts:
     script: echo "deploying ${STAGE} to ${URL}"
 ```
 
+## Dependencies on scripts
+
+Scripts can depend on other scripts in which case the dependencies will be started automatically at the beginning.
+
+```yaml
+scripts:
+
+  build:
+    script: yarn run compile
+
+  deploy:
+    dependencies: [build]
+    script: echo "deploying..."
+```
+
 ## CLI: running scripts
 
 **Run script:**

@@ -62,6 +62,7 @@ export function populateYamlConfiguration(file: string, config: any): YamlConfig
 			environment: {},
 			except: [],
 			only: [],
+			dependencies: [],
 			before_script: [],
 			after_script: [],
 			script: [],
@@ -107,6 +108,24 @@ export function populateYamlConfiguration(file: string, config: any): YamlConfig
 				}
 
 				yaml.scripts[name].only.push(project);
+			});
+		}
+
+		if (!_.isUndefined(script.dependencies)) {
+			if (!_.isArray(script.dependencies)) {
+				throw new Error(`Dependencies for script ${name} in ${file} must be a list of other script names.`);
+			}
+
+			_.forEach(script.dependencies, (dependency) => {
+				if (!_.isString(dependency)) {
+					throw new Error(`Dependencies for script ${name} in ${file} must contain only strings.`);
+				}
+
+				if (dependency === name) {
+					throw new Error(`Script ${name} in ${file} contains dependency on itself. Recursion is not allowed here.`);
+				}
+
+				yaml.scripts[name].dependencies.push(dependency);
 			});
 		}
 

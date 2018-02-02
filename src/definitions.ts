@@ -21,6 +21,7 @@ export declare interface ImbaEnvironmentScriptConfiguration
 export declare interface ImbaScriptConfiguration
 {
 	environment: ImbaEnvironmentScriptConfiguration,
+	dependencies: Array<string>,
 	projects: {
 		[name: string]: ImbaProjectScriptConfiguration,
 	},
@@ -51,6 +52,7 @@ export declare interface YamlConfiguration
 			environment: {[name: string]: string},
 			except: Array<string>,
 			only: Array<string>,
+			dependencies: Array<string>,
 			before_script: Array<string>,
 			after_script: Array<string>,
 			script: Array<string>,

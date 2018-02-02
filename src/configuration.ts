@@ -46,6 +46,7 @@ function parseYamlData(file: string, yaml: YamlConfiguration): ImbaConfiguration
 	_.forEach(yaml.scripts, (script, name) => {
 		config.scripts[name] = {
 			environment: {},
+			dependencies: _.clone(script.dependencies),
 			projects: {},
 		};
 

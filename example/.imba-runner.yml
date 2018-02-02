@@ -13,11 +13,11 @@ scripts:
 
   deps:install:
     before_script: echo "Starting to install dependencies"
-    script: yarn install
+    script: echo "yarn install"
     after_script: echo "Return code from installation was ${IMBA_SCRIPT_RETURN_CODE}"
     projects:
       php:a:
-        script: composer install
+        script: echo "composer install"
 
   run:dev:
     except: [js:b]
@@ -33,6 +33,8 @@ scripts:
     only: [js:a]
     environment:
       ENVIRONMENT: prod
+    dependencies:
+      - deps:install
     script:
       - date
       - uptime
