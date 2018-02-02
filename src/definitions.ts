@@ -37,3 +37,30 @@ export declare interface ImbaConfiguration
 		[name: string]: ImbaScriptConfiguration,
 	},
 }
+
+
+export declare interface YamlConfiguration
+{
+	projects: {
+		[name: string]: {
+			root: string,
+		},
+	},
+	scripts: {
+		[name: string]: {
+			environment: {[name: string]: string},
+			except: Array<string>,
+			only: Array<string>,
+			before_script: Array<string>,
+			after_script: Array<string>,
+			script: Array<string>,
+			projects: {
+				[name: string]: {
+					before_script: Array<string>,
+					after_script: Array<string>,
+					script: Array<string>,
+				},
+			},
+		},
+	},
+}
