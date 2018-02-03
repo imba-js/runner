@@ -1,11 +1,14 @@
 export declare interface ImbaProjectConfiguration
 {
+	name: string,
 	root: string,
 }
 
 
 export declare interface ImbaProjectScriptConfiguration
 {
+	project: ImbaProjectConfiguration,
+	parentScript: ImbaScriptConfiguration,
 	beforeScript: Array<string>,
 	afterScript: Array<string>,
 	script: Array<string>,
@@ -18,13 +21,18 @@ export declare interface ImbaEnvironmentScriptConfiguration
 }
 
 
+export declare interface ImbaProjectScriptListConfiguration
+{
+	[name: string]: ImbaProjectScriptConfiguration,
+}
+
+
 export declare interface ImbaScriptConfiguration
 {
+	name: string,
 	environment: ImbaEnvironmentScriptConfiguration,
 	dependencies: Array<string>,
-	projects: {
-		[name: string]: ImbaProjectScriptConfiguration,
-	},
+	projects: ImbaProjectScriptListConfiguration,
 }
 
 

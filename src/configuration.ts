@@ -39,12 +39,14 @@ function parseYamlData(file: string, yaml: YamlConfiguration): ImbaConfiguration
 
 	_.forEach(yaml.projects, (project, name) => {
 		config.projects[name] = {
+			name: name,
 			root: project.root,
 		};
 	});
 
 	_.forEach(yaml.scripts, (script, name) => {
 		config.scripts[name] = {
+			name: name,
 			environment: {},
 			dependencies: _.clone(script.dependencies),
 			projects: {},
@@ -68,6 +70,8 @@ function parseYamlData(file: string, yaml: YamlConfiguration): ImbaConfiguration
 			});
 
 			config.scripts[name].projects[projectName] = {
+				project: project,
+				parentScript: config.scripts[name],
 				beforeScript: _.isUndefined(projectScripts) ? _.clone(script.before_script) : _.clone(projectScripts.before_script),
 				afterScript: _.isUndefined(projectScripts) ? _.clone(script.after_script) : _.clone(projectScripts.after_script),
 				script: _.isUndefined(projectScripts) ? _.clone(script.script) : _.clone(projectScripts.script),

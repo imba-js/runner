@@ -1,4 +1,5 @@
-import {ImbaConfiguration} from './definitions';
+import {ImbaConfiguration, ImbaProjectScriptConfiguration} from './definitions';
+import {ScriptRunner} from './script-runners';
 import * as termSize from 'term-size';
 import chalk from 'chalk';
 import * as _ from 'lodash';
@@ -67,5 +68,34 @@ export function printInfo(config: ImbaConfiguration): void
 				console.log(`        - ${script}`);
 			});
 		});
+	});
+}
+
+
+export function printRunner(runner: ScriptRunner): void
+{
+	let projectsCount = 0;
+
+	runner.addListener('projectStart', (scriptProject: ImbaProjectScriptConfiguration) => {
+		if (projectsCount) {
+			console.log('');
+		}
+
+		console.log(chalk.bold.blue(`Running ${scriptProject.parentScript.name} on ${scriptProject.project.name}`));
+		printSeparator();
+
+		projectsCount++;
+	});
+
+	runner.addListener('commandRun', (command: string) => {
+		console.log(chalk.magenta(` - ${command}`));
+	});
+
+	runner.addListener('commandStdout', (stdout: string) => {
+		process.stdout.write(stdout);
+	});
+
+	runner.addListener('commandStderr', (stderr: string) => {
+		process.stderr.write(stderr);
 	});
 }

@@ -1,6 +1,6 @@
 import {readConfiguration} from './configuration';
-import {printInfo} from './printer';
-import {runScript} from './runner';
+import {printInfo, printRunner} from './printer';
+import {SeriesScriptRunner} from './script-runners';
 import * as yargs from 'yargs';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -57,7 +57,11 @@ switch (argv._[0]) {
 			process.exit(1);
 		}
 
-		runScript(config, argv._[1]).then((returnCode) => {
+		const runner = new SeriesScriptRunner(config);
+
+		printRunner(runner);
+
+		runner.runScript(argv._[1]).then((returnCode) => {
 			const message = `Script ${argv._[1]} finished with return code ${returnCode}`;
 
 			console.log('');
