@@ -1,5 +1,6 @@
 import {readConfiguration} from './configuration';
 import {printInfo, printRunner} from './printer';
+import {SpawnRunnerFactory} from './runners';
 import {SeriesScriptRunner} from './script-runners';
 import {NativeOutput} from './outputs';
 import * as yargs from 'yargs';
@@ -28,6 +29,7 @@ const dir: string = path.isAbsolute(argv.dir) ?
 ;
 
 const output = new NativeOutput;
+const runnerFactory = new SpawnRunnerFactory;
 const configFile: string = path.join(dir, '.imba-runner.yml');
 
 
@@ -59,7 +61,7 @@ switch (argv._[0]) {
 			process.exit(1);
 		}
 
-		const runner = new SeriesScriptRunner(config);
+		const runner = new SeriesScriptRunner(runnerFactory, config);
 
 		printRunner(output, runner);
 

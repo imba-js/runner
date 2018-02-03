@@ -1,20 +1,23 @@
 import {EventEmitter} from 'events';
 import {ImbaConfiguration, ImbaEnvironmentScriptConfiguration, ImbaProjectScriptConfiguration, ImbaProjectScriptListConfiguration} from '../definitions';
+import {RunnerFactory} from '../runners';
 import * as _ from 'lodash';
-import {spawn} from 'child_process';
 
 
 export abstract class ScriptRunner extends EventEmitter
 {
 
 
+	private runnerFactory: RunnerFactory;
+
 	private config: ImbaConfiguration;
 
 
-	constructor(config: ImbaConfiguration)
+	constructor(runnerFactory: RunnerFactory, config: ImbaConfiguration)
 	{
 		super();
 
+		this.runnerFactory = runnerFactory;
 		this.config = config;
 	}
 
@@ -99,27 +102,21 @@ export abstract class ScriptRunner extends EventEmitter
 
 	private runCommand(root: string, command: string, environment: ImbaEnvironmentScriptConfiguration): Promise<number>
 	{
-		this.emit('commandRun', command);
+		const runner = this.runnerFactory.createRunner(root, command, environment);
 
-		return new Promise<number>((resolve) => {
-			const child = spawn(command, [], {
-				shell: true,
-				cwd: root,
-				env: environment,
-			});
-
-			child.stdout.on('data', (chunk: string) => {
-				this.emit('commandStdout', chunk);
-			});
-
-			child.stderr.on('data', (chunk: string) => {
-				this.emit('commandStderr', chunk);
-			});
-
-			child.on('close', (returnCode) => {
-				resolve(returnCode);
-			});
+		runner.addListener('start', (command) => {
+			this.emit('commandRun', command);
 		});
+
+		runner.addListener('stdout', (command) => {
+			this.emit('commandStdout', command);
+		});
+
+		runner.addListener('stderr', (command) => {
+			this.emit('commandStderr', command);
+		});
+
+		return runner.run();
 	}
 
 
