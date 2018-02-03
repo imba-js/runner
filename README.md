@@ -196,9 +196,9 @@ scripts:
     script: echo "deploying..."
 ```
 
-## Running scripts in parallel
+## Running scripts in series
 
-By default each script run for each project in series. This can be changed to parallel mode.
+By default each script run for each project in parallel. This can be changed to series mode if needed.
 
 ```yaml
 projects:
@@ -212,7 +212,7 @@ projects:
 scripts:
   
   a:
-    mode: parallel
+    mode: series
     script:
       - sleep 1
       - echo "Running 1st script for project '${IMBA_PROJECT_NAME}'"
@@ -224,19 +224,6 @@ Now the output for the script `a` above should be something like this:
 
 ```
 [a] sleep 1
-[b] sleep 1
-[a] echo "Running 1st script for project 'a'"
-[b] echo "Running 1st script for project 'b'"
-[a] sleep 1
-[b] sleep 1
-[a] echo "Running 2nd script for project 'a'"
-[b] echo "Running 2nd script for project 'b'"
-```
-
-Whereas for series mode it should look like that:
-
-```
-[a] sleep 1
 [a] echo "Running 1st script for project 'a'"
 [a] sleep 1
 [a] echo "Running 2nd script for project 'a'"
@@ -246,7 +233,20 @@ Whereas for series mode it should look like that:
 [b] echo "Running 2nd script for project 'b'"
 ```
 
-Also in that example, the first way should take about 2 seconds to finish and the second about 4 seconds.
+Whereas for parallel mode it should look like that:
+
+```
+[a] sleep 1
+[b] sleep 1
+[a] echo "Running 1st script for project 'a'"
+[b] echo "Running 1st script for project 'b'"
+[a] sleep 1
+[b] sleep 1
+[a] echo "Running 2nd script for project 'a'"
+[b] echo "Running 2nd script for project 'b'"
+```
+
+Also in that example, the first way should take about 4 seconds to finish and the second about 2 seconds.
 
 ## CLI: running scripts
 

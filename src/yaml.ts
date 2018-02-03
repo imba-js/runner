@@ -59,7 +59,7 @@ export function populateYamlConfiguration(file: string, config: any): YamlConfig
 		}
 
 		yaml.scripts[name] = {
-			mode: 'series',
+			mode: 'parallel',
 			environment: {},
 			except: [],
 			only: [],
