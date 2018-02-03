@@ -1,8 +1,8 @@
 import {readConfiguration} from './configuration';
-import {printInfo, printRunner} from './printer';
 import {SpawnRunnerFactory} from './runners';
 import {SeriesScriptRunner} from './script-runners';
 import {NativeOutput} from './outputs';
+import {InfoPrinter, SeriesScriptPrinter} from './printers';
 import * as yargs from 'yargs';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -48,8 +48,9 @@ if (!fs.existsSync(configFile) || !fs.statSync(configFile).isFile()) {
 
 const config = readConfiguration(configFile);
 
+
 switch (argv._[0]) {
-	case 'info': printInfo(output, config); break;
+	case 'info': (new InfoPrinter(output)).printInfo(config); break;
 	case 'run':
 		if (_.isUndefined(argv._[1])) {
 			output.log(`Missing run script.`);
@@ -62,8 +63,9 @@ switch (argv._[0]) {
 		}
 
 		const runner = new SeriesScriptRunner(runnerFactory, config);
+		const scriptPrinter = new SeriesScriptPrinter(output);
 
-		printRunner(output, runner);
+		scriptPrinter.enablePrinter(runner);
 
 		runner.runScript(argv._[1]).then((returnCode) => {
 			const message = `Script ${argv._[1]} finished with return code ${returnCode}`;
