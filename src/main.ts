@@ -1,13 +1,14 @@
 import {readConfiguration} from './configuration';
 import {SpawnRunnerFactory} from './runners';
-import {SeriesScriptRunner} from './script-runners';
+import {ScriptRunner, SeriesScriptRunner, ParallelScriptRunner} from './script-runners';
+import {InfoPrinter, ScriptPrinter, SeriesScriptPrinter, ParallelScriptPrinter} from './printers';
 import {NativeOutput} from './outputs';
-import {InfoPrinter, SeriesScriptPrinter} from './printers';
+import {ImbaScriptConfiguration, ImbaScriptMode} from './definitions';
+import {MainRunner} from './main-runner';
 import * as yargs from 'yargs';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as _ from 'lodash';
-import chalk from 'chalk';
 
 
 const argv = yargs
@@ -47,6 +48,7 @@ if (!fs.existsSync(configFile) || !fs.statSync(configFile).isFile()) {
 
 
 const config = readConfiguration(configFile);
+const runner = new MainRunner(runnerFactory, output, config);
 
 
 switch (argv._[0]) {
@@ -62,17 +64,9 @@ switch (argv._[0]) {
 			process.exit(1);
 		}
 
-		const runner = new SeriesScriptRunner(runnerFactory, config);
-		const scriptPrinter = new SeriesScriptPrinter(output);
+		const script = config.scripts[argv._[1]];
 
-		scriptPrinter.enablePrinter(runner);
-
-		runner.runScript(argv._[1]).then((returnCode) => {
-			const message = `Script ${argv._[1]} finished with return code ${returnCode}`;
-
-			output.log('');
-			output.log(!returnCode ? chalk.bold.bgGreen.black(message) : chalk.bold.bgRed(message));
-
+		runner.run(script).then((returnCode) => {
 			process.exit(returnCode);
 		});
 

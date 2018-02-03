@@ -1,4 +1,4 @@
-import {ImbaConfiguration, ImbaProjectConfiguration, YamlConfiguration} from './definitions';
+import {ImbaConfiguration, ImbaScriptConfiguration, YamlConfiguration, ImbaScriptMode} from './definitions';
 import {populateYamlConfiguration} from './yaml';
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
@@ -12,20 +12,6 @@ export function readConfiguration(file: string): ImbaConfiguration
 	const yamlConfig = populateYamlConfiguration(file, yamlData);
 
 	return parseYamlData(file, yamlConfig);
-}
-
-
-export function getProjectConfiguration(configuration: ImbaConfiguration, name: string): ImbaProjectConfiguration
-{
-	const project = _.find(configuration.projects, (project, projectName) => {
-		return projectName === name;
-	});
-
-	if (!project) {
-		throw new Error(`Project ${name} does not exists.`);
-	}
-
-	return project;
 }
 
 
@@ -47,6 +33,7 @@ function parseYamlData(file: string, yaml: YamlConfiguration): ImbaConfiguration
 	_.forEach(yaml.scripts, (script, name) => {
 		config.scripts[name] = {
 			name: name,
+			mode: script.mode === 'series' ? ImbaScriptMode.Series : ImbaScriptMode.Parallel,
 			environment: {},
 			dependencies: _.clone(script.dependencies),
 			projects: {},
@@ -79,5 +66,27 @@ function parseYamlData(file: string, yaml: YamlConfiguration): ImbaConfiguration
 		});
 	});
 
+	_.forEach(config.scripts, (script) => {
+		script.dependencies = constructDependencies(config, script);
+	});
+
 	return config;
+}
+
+
+function constructDependencies(config: ImbaConfiguration, script: ImbaScriptConfiguration): Array<string>
+{
+	let result: Array<string> = [];
+
+	_.forEach(script.dependencies, (dependency: string) => {
+		result.push(dependency);
+
+		const innerScript = _.find(config.scripts, (script) => {
+			return script.name === dependency;
+		});
+
+		result = constructDependencies(config, innerScript).concat(result);
+	});
+
+	return result;
 }

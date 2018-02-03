@@ -1,6 +1,6 @@
 import {printSeparator} from './_helpers';
 import {Output} from '../outputs';
-import {ImbaConfiguration} from '../definitions';
+import {ImbaConfiguration, ImbaScriptMode} from '../definitions';
 import chalk from 'chalk';
 import * as _ from 'lodash';
 
@@ -39,6 +39,15 @@ export class InfoPrinter
 
 		_.forEach(config.scripts, (script, name) => {
 			this.output.log(chalk.green(name));
+			this.output.log(`  ${chalk.magenta('Mode:')} ${ImbaScriptMode[script.mode]}`);
+
+			if (_.size(script.dependencies)) {
+				this.output.log(`  ${chalk.magenta('Dependencies:')}`);
+
+				_.forEach(script.dependencies, (dependency) => {
+					this.output.log(`    - ${dependency}`);
+				});
+			}
 
 			if (_.size(script.environment)) {
 				this.output.log(`  ${chalk.magenta('Environment:')}`);

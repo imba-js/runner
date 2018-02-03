@@ -1,3 +1,10 @@
+export enum ImbaScriptMode
+{
+	Series,
+	Parallel,
+}
+
+
 export declare interface ImbaProjectConfiguration
 {
 	name: string,
@@ -30,6 +37,7 @@ export declare interface ImbaProjectScriptListConfiguration
 export declare interface ImbaScriptConfiguration
 {
 	name: string,
+	mode: ImbaScriptMode,
 	environment: ImbaEnvironmentScriptConfiguration,
 	dependencies: Array<string>,
 	projects: ImbaProjectScriptListConfiguration,
@@ -57,6 +65,7 @@ export declare interface YamlConfiguration
 	},
 	scripts: {
 		[name: string]: {
+			mode: string,
 			environment: {[name: string]: string},
 			except: Array<string>,
 			only: Array<string>,

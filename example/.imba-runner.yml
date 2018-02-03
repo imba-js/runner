@@ -38,3 +38,28 @@ scripts:
     script:
       - date
       - uptime
+
+  work:
+    script: echo "Working hard..."
+
+  sleep:prepare:
+    mode: parallel
+    dependencies:
+      - work
+    before_script:
+      - echo "Preparing to sleep on ${IMBA_PROJECT_NAME}"
+    after_script:
+      - echo "Prepared to sleep on ${IMBA_PROJECT_NAME}"
+    script:
+      - sleep 1
+
+  sleep:
+    mode: parallel
+    dependencies:
+      - sleep:prepare
+    before_script:
+      - echo "Before sleep on ${IMBA_PROJECT_NAME}"
+    after_script:
+      - echo "After sleep on ${IMBA_PROJECT_NAME}"
+    script:
+      - sleep 5

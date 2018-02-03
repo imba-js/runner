@@ -4,6 +4,20 @@ import {RunnerFactory} from '../runners';
 import * as _ from 'lodash';
 
 
+export declare interface ScriptCommandStartArg
+{
+	command: string,
+	scriptProject: ImbaProjectScriptConfiguration,
+}
+
+
+export declare interface ScriptCommandOutputArg
+{
+	chunk: string,
+	scriptProject: ImbaProjectScriptConfiguration,
+}
+
+
 export abstract class ScriptRunner extends EventEmitter
 {
 
@@ -25,21 +39,13 @@ export abstract class ScriptRunner extends EventEmitter
 	public async runScript(scriptName: string): Promise<number>
 	{
 		const script = this.config.scripts[scriptName];
-
-		const dependencies = script.dependencies;
 		const projects = script.projects;
 
-		if (dependencies.length) {
-			this.emit('dependenciesStart', scriptName);
+		this.emit('start', scriptName);
+		const returnCode = await this.doRunScript(projects);
+		this.emit('end', returnCode);
 
-			for (let i = 0; i < dependencies.length; i++) {
-				await this.runScript(dependencies[i]);
-			}
-
-			this.emit('dependenciesEnd', scriptName);
-		}
-
-		return await this.doRunScript(projects);
+		return returnCode;
 	}
 
 
@@ -51,26 +57,25 @@ export abstract class ScriptRunner extends EventEmitter
 		const scriptName = scriptProject.parentScript.name;
 		const scriptEnvironment = scriptProject.parentScript.environment;
 		const projectName = scriptProject.project.name;
-		const projectRoot = scriptProject.project.root;
 
 		this.emit('projectStart', scriptProject);
 
 		if (scriptProject.beforeScript.length) {
-			await this.runScriptStack(projectRoot, scriptProject.beforeScript, this.modifyEnvironment(scriptEnvironment, {
+			await this.runScriptStack(scriptProject, scriptProject.beforeScript, this.modifyEnvironment(scriptEnvironment, {
 				IMBA_SCRIPT_NAME: scriptName,
 				IMBA_SCRIPT_TYPE_NAME: 'before_script',
 				IMBA_PROJECT_NAME: projectName,
 			}));
 		}
 
-		const returnCode = await this.runScriptStack(projectRoot, scriptProject.script, this.modifyEnvironment(scriptEnvironment, {
+		const returnCode = await this.runScriptStack(scriptProject, scriptProject.script, this.modifyEnvironment(scriptEnvironment, {
 			IMBA_SCRIPT_NAME: scriptName,
 			IMBA_SCRIPT_TYPE_NAME: 'script',
 			IMBA_PROJECT_NAME: projectName,
 		}));
 
 		if (scriptProject.afterScript.length) {
-			await this.runScriptStack(projectRoot, scriptProject.afterScript, this.modifyEnvironment(scriptEnvironment, {
+			await this.runScriptStack(scriptProject, scriptProject.afterScript, this.modifyEnvironment(scriptEnvironment, {
 				IMBA_SCRIPT_NAME: scriptName,
 				IMBA_SCRIPT_TYPE_NAME: 'after_script',
 				IMBA_PROJECT_NAME: projectName,
@@ -84,12 +89,12 @@ export abstract class ScriptRunner extends EventEmitter
 	}
 
 
-	private async runScriptStack(root: string, commands: Array<string>, environment: ImbaEnvironmentScriptConfiguration): Promise<number>
+	private async runScriptStack(scriptProject: ImbaProjectScriptConfiguration, commands: Array<string>, environment: ImbaEnvironmentScriptConfiguration): Promise<number>
 	{
 		let returnCode = 0;
 
 		for (let i = 0; i < commands.length; i++) {
-			returnCode = await this.runCommand(root, commands[i], environment);
+			returnCode = await this.runCommand(scriptProject, commands[i], environment);
 
 			if (returnCode > 0) {
 				return returnCode;
@@ -100,20 +105,29 @@ export abstract class ScriptRunner extends EventEmitter
 	}
 
 
-	private runCommand(root: string, command: string, environment: ImbaEnvironmentScriptConfiguration): Promise<number>
+	private runCommand(scriptProject: ImbaProjectScriptConfiguration, command: string, environment: ImbaEnvironmentScriptConfiguration): Promise<number>
 	{
-		const runner = this.runnerFactory.createRunner(root, command, environment);
+		const runner = this.runnerFactory.createRunner(scriptProject.project.root, command, environment);
 
 		runner.addListener('start', (command) => {
-			this.emit('commandRun', command);
+			this.emit('commandRun', {
+				command: command,
+				scriptProject: scriptProject,
+			});
 		});
 
-		runner.addListener('stdout', (command) => {
-			this.emit('commandStdout', command);
+		runner.addListener('stdout', (chunk) => {
+			this.emit('commandStdout', {
+				chunk: chunk,
+				scriptProject: scriptProject,
+			});
 		});
 
-		runner.addListener('stderr', (command) => {
-			this.emit('commandStderr', command);
+		runner.addListener('stderr', (chunk) => {
+			this.emit('commandStderr', {
+				chunk: chunk,
+				scriptProject: scriptProject,
+			});
 		});
 
 		return runner.run();

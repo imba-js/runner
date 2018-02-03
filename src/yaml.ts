@@ -59,6 +59,7 @@ export function populateYamlConfiguration(file: string, config: any): YamlConfig
 		}
 
 		yaml.scripts[name] = {
+			mode: 'series',
 			environment: {},
 			except: [],
 			only: [],
@@ -68,6 +69,18 @@ export function populateYamlConfiguration(file: string, config: any): YamlConfig
 			script: [],
 			projects: {},
 		};
+
+		if (!_.isUndefined(script.mode)) {
+			if (!_.isString(script.mode)) {
+				throw new Error(`Mode for script ${name} in ${file} must be a "series" or "parallel" string.`);
+			}
+
+			if (script.mode !== 'series' && script.mode !== 'parallel') {
+				throw new Error(`Mode for script ${name} in ${file} must be a "series" or "parallel" string, but "${script.mode}" given.`);
+			}
+
+			yaml.scripts[name].mode = script.mode;
+		}
 
 		if (!_.isUndefined(script.environment)) {
 			if (!_.isPlainObject(script.environment)) {

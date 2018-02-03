@@ -1,39 +1,30 @@
 import {printSeparator} from './_helpers';
 import {ScriptPrinter} from './script-printer';
 import {ScriptRunner, ScriptCommandStartArg, ScriptCommandOutputArg} from '../script-runners';
-import {ImbaProjectScriptConfiguration} from '../definitions';
 import chalk from 'chalk';
 
 
-export class SeriesScriptPrinter extends ScriptPrinter
+export class ParallelScriptPrinter extends ScriptPrinter
 {
 
 
 	public enablePrinter(runner: ScriptRunner): void
 	{
-		let projectsCount = 0;
-
-		runner.addListener('projectStart', (scriptProject: ImbaProjectScriptConfiguration) => {
-			if (projectsCount) {
-				this.output.log('');
-			}
-
-			this.output.log(chalk.bold.blue(`Running ${scriptProject.parentScript.name} on ${scriptProject.project.name}`));
+		runner.addListener('start', (script) => {
+			this.output.log(chalk.bold.blue(`Running ${script} in parallel mode`));
 			printSeparator(this.output);
-
-			projectsCount++;
 		});
 
 		runner.addListener('commandRun', (command: ScriptCommandStartArg) => {
-			this.output.log(chalk.magenta(` - ${command.command}`));
+			this.output.log(chalk.magenta(chalk.magenta(`[${command.scriptProject.project.name}]`) + ' - ' + command.command));
 		});
 
 		runner.addListener('commandStdout', (output: ScriptCommandOutputArg) => {
-			this.output.stdout(output.chunk);
+			this.output.stdout(chalk.magenta(`[${output.scriptProject.project.name}]`) + ' ' + output.chunk);
 		});
 
 		runner.addListener('commandStderr', (output: ScriptCommandOutputArg) => {
-			this.output.stderr(output.chunk);
+			this.output.stderr(chalk.magenta(`[${output.scriptProject.project.name}]`) + ' ' + output.chunk);
 		});
 	}
 
