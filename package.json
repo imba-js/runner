@@ -14,7 +14,8 @@
 		"chalk": "^2.3.0",
 		"js-yaml": "^3.10.0",
 		"lodash": "^4.17.4",
-		"term-size": "^1.2.0"
+		"term-size": "^1.2.0",
+		"yargs": "^11.0.0"
 	},
 	"devDependencies": {
 		"@types/chai": "^4.1.2",
@@ -26,8 +27,7 @@
 		"chai": "^4.1.2",
 		"mocha": "^5.0.0",
 		"ts-node": "^4.1.0",
-		"typescript": "^2.7.1",
-		"yargs": "^11.0.0"
+		"typescript": "^2.7.1"
 	},
 	"scripts": {
 		"prepublish": "tsc",
