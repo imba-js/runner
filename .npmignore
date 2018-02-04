@@ -1,0 +1,9 @@
+.idea/
+node_modules/
+src/
+test/
+example/
+.travis.yml
+README.md
+tsconfig.json
+yarn.lock
