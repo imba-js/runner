@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import {readYamlConfiguration} from './yaml';
 import {parseYamlData} from './configuration';
 import {SpawnRunnerFactory} from './runners';
