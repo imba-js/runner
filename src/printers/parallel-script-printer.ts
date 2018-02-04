@@ -1,4 +1,3 @@
-import {printSeparator} from './_helpers';
 import {ScriptPrinter} from './script-printer';
 import {ScriptRunner, ScriptCommandStartArg, ScriptCommandOutputArg} from '../script-runners';
 import chalk from 'chalk';
@@ -12,7 +11,7 @@ export class ParallelScriptPrinter extends ScriptPrinter
 	{
 		runner.addListener('start', (script) => {
 			this.output.log(chalk.bold.blue(`Running ${script} in parallel mode`));
-			printSeparator(this.output);
+			this.printSeparator();
 		});
 
 		runner.addListener('commandRun', (command: ScriptCommandStartArg) => {

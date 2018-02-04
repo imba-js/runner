@@ -1,18 +1,9 @@
-import {Output} from '../outputs';
+import {Printer} from './printer';
 import {ScriptRunner} from '../script-runners';
 
 
-export abstract class ScriptPrinter
+export abstract class ScriptPrinter extends Printer
 {
-
-
-	protected output: Output;
-
-
-	constructor(output: Output)
-	{
-		this.output = output;
-	}
 
 
 	public abstract enablePrinter(runner: ScriptRunner): void;

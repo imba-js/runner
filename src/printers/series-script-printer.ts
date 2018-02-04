@@ -1,4 +1,3 @@
-import {printSeparator} from './_helpers';
 import {ScriptPrinter} from './script-printer';
 import {ScriptRunner, ScriptCommandStartArg, ScriptCommandOutputArg} from '../script-runners';
 import {ImbaProjectScriptConfiguration} from '../definitions';
@@ -19,7 +18,7 @@ export class SeriesScriptPrinter extends ScriptPrinter
 			}
 
 			this.output.log(chalk.bold.blue(`Running ${scriptProject.parentScript.name} on ${scriptProject.project.name}`));
-			printSeparator(this.output);
+			this.printSeparator();
 
 			projectsCount++;
 		});

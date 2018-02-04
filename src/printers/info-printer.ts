@@ -1,32 +1,22 @@
-import {printSeparator} from './_helpers';
-import {Output} from '../outputs';
+import {Printer} from './printer';
 import {ImbaConfiguration, ImbaScriptMode} from '../definitions';
 import chalk from 'chalk';
 import * as _ from 'lodash';
 
 
-export class InfoPrinter
+export class InfoPrinter extends Printer
 {
-
-
-	private output: Output;
-
-
-	constructor(output: Output)
-	{
-		this.output = output;
-	}
 
 
 	public printInfo(config: ImbaConfiguration): void
 	{
 		this.output.log(chalk.bold.blue('Configuration'));
-		printSeparator(this.output);
+		this.printSeparator();
 		this.output.log(config.file);
 
 		this.output.log('');
 		this.output.log(chalk.bold.blue('Projects'));
-		printSeparator(this.output);
+		this.printSeparator();
 
 		_.forEach(config.projects, (project, name) => {
 			this.output.log(chalk.green(name));
@@ -35,7 +25,7 @@ export class InfoPrinter
 
 		this.output.log('');
 		this.output.log(chalk.bold.blue('Scripts'));
-		printSeparator(this.output);
+		this.printSeparator();
 
 		_.forEach(config.scripts, (script, name) => {
 			this.output.log(chalk.green(name));
