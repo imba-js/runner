@@ -1,10 +1,20 @@
 import {YamlConfiguration} from './definitions';
+import {FileReader} from './file-readers';
 import * as path from 'path';
-import * as fs from 'fs';
+import * as yaml from 'js-yaml';
 import * as _ from 'lodash';
 
 
-export function populateYamlConfiguration(file: string, config: any): YamlConfiguration
+export function readYamlConfiguration(reader: FileReader, file: string): YamlConfiguration
+{
+	const fileData = reader.readFile(file);
+	const yamlData = yaml.safeLoad(fileData, {filename: file});
+
+	return populateYamlConfiguration(reader, file, yamlData);
+}
+
+
+function populateYamlConfiguration(reader: FileReader, file: string, config: any): YamlConfiguration
 {
 	const dir = path.dirname(file);
 
@@ -36,7 +46,7 @@ export function populateYamlConfiguration(file: string, config: any): YamlConfig
 
 		const root = path.join(dir, project.root);
 
-		if (!fs.existsSync(root) || !fs.statSync(root).isDirectory()) {
+		if (!reader.isDirectory(root)) {
 			throw new Error(`Root path "${root}" for ${name} in ${file} must be an existing directory.`);
 		}
 
@@ -134,10 +144,6 @@ export function populateYamlConfiguration(file: string, config: any): YamlConfig
 					throw new Error(`Dependencies for script ${name} in ${file} must contain only strings.`);
 				}
 
-				if (dependency === name) {
-					throw new Error(`Script ${name} in ${file} contains dependency on itself. Recursion is not allowed here.`);
-				}
-
 				yaml.scripts[name].dependencies.push(dependency);
 			});
 		}
@@ -161,7 +167,7 @@ export function populateYamlConfiguration(file: string, config: any): YamlConfig
 
 			_.forEach(script.projects, (project, projectName) => {
 				if (!_.isPlainObject(project)) {
-					throw new Error(`Projects for script ${name} in ${file} must be a list of projects with their custom scripts.`);
+					throw new Error(`Project ${projectName} for script ${name} in ${file} must contain a configuration.`);
 				}
 
 				const existingProject = _.find(yaml.projects, (existingProject, existingProjectName) => {

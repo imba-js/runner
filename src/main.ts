@@ -1,9 +1,9 @@
-import {readConfiguration} from './configuration';
+import {readYamlConfiguration} from './yaml';
+import {parseYamlData} from './configuration';
 import {SpawnRunnerFactory} from './runners';
-import {ScriptRunner, SeriesScriptRunner, ParallelScriptRunner} from './script-runners';
-import {InfoPrinter, ScriptPrinter, SeriesScriptPrinter, ParallelScriptPrinter} from './printers';
+import {InfoPrinter} from './printers';
 import {NativeOutput} from './outputs';
-import {ImbaScriptConfiguration, ImbaScriptMode} from './definitions';
+import {NativeFileReader} from './file-readers';
 import {MainRunner} from './main-runner';
 import * as yargs from 'yargs';
 import * as fs from 'fs';
@@ -30,6 +30,7 @@ const dir: string = path.isAbsolute(argv.dir) ?
 ;
 
 const output = new NativeOutput;
+const reader = new NativeFileReader;
 const runnerFactory = new SpawnRunnerFactory;
 const configFile: string = path.join(dir, '.imba-runner.yml');
 
@@ -47,7 +48,8 @@ if (!fs.existsSync(configFile) || !fs.statSync(configFile).isFile()) {
 }
 
 
-const config = readConfiguration(configFile);
+const yaml = readYamlConfiguration(reader, configFile);
+const config = parseYamlData(configFile, yaml);
 const runner = new MainRunner(runnerFactory, output, config);
 
 

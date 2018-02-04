@@ -1,21 +1,8 @@
 import {ImbaConfiguration, ImbaScriptConfiguration, YamlConfiguration, ImbaScriptMode} from './definitions';
-import {populateYamlConfiguration} from './yaml';
-import * as fs from 'fs';
-import * as yaml from 'js-yaml';
 import * as _ from 'lodash';
 
 
-export function readConfiguration(file: string): ImbaConfiguration
-{
-	const fileData = fs.readFileSync(file, {encoding: 'utf-8'});
-	const yamlData = yaml.safeLoad(fileData, {filename: file});
-	const yamlConfig = populateYamlConfiguration(file, yamlData);
-
-	return parseYamlData(file, yamlConfig);
-}
-
-
-function parseYamlData(file: string, yaml: YamlConfiguration): ImbaConfiguration
+export function parseYamlData(file: string, yaml: YamlConfiguration): ImbaConfiguration
 {
 	const config: ImbaConfiguration = {
 		file: file,
