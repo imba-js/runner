@@ -6,10 +6,11 @@
 		"lib": [
 			"es5", "scripthost", "es2015.promise"
 		],
-		"sourceRoot": "./src",
+		"rootDir": "./src",
 		"outDir": "./lib"
 	},
 	"exclude": [
-		"node_modules"
+		"node_modules",
+		"test"
 	]
 }
