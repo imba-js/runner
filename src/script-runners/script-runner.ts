@@ -168,15 +168,15 @@ export abstract class ScriptRunner extends EventEmitter
 			output: process.stdout
 		});
 
-		async function askQuestion(question: string): Promise<string>
+		async function askQuestion(input: ImbaInputScriptConfiguration): Promise<string>
 		{
 			return new Promise<string>((resolve) => {
-				rl.question(`${question} `, (answer) => {
+				rl.question(`${input.question} `, (answer) => {
 					answer = answer.trim();
 
-					if (answer === '') {
+					if (input.required && answer === '') {
 						output.log('This question is required.');
-						resolve(askQuestion(question));
+						resolve(askQuestion(input));
 					} else {
 						resolve(answer);
 					}
@@ -185,7 +185,7 @@ export abstract class ScriptRunner extends EventEmitter
 		}
 
 		for (let i = 0; i < inputs.length; i++) {
-			result[inputs[i].name] = await askQuestion(inputs[i].question);
+			result[inputs[i].name] = await askQuestion(inputs[i]);
 		}
 
 		rl.close();

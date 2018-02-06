@@ -35,6 +35,7 @@ export function parseYamlData(file: string, yaml: YamlConfiguration): ImbaConfig
 			config.scripts[name].inputs.push({
 				name: input.name,
 				question: input.question,
+				required: input.required,
 			});
 		});
 

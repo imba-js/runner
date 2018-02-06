@@ -51,7 +51,7 @@ export class InfoPrinter extends Printer
 				this.output.log(`  ${chalk.magenta('Inputs:')}`);
 
 				_.forEach(script.inputs, (input) => {
-					this.output.log(`    - ${input.name}: ${input.question}`);
+					this.output.log(`    - ${input.required ? '(Required) ' : ''}${input.name}: ${input.question}`);
 				});
 			}
 

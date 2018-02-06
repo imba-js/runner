@@ -18,8 +18,8 @@ scripts:
     mode: series
     only: [root]
     inputs:
-      - {name: USER_NAME, question: "Please, enter your user name:", required: true}
-      - {name: USER_EMAIL, question: "Please, enter your user email:"}
+      - {name: USER_NAME, question: "Please, enter your user name:"}
+      - {name: USER_EMAIL, question: "Please, enter your user email:", required: true}
     script:
       - env
 
