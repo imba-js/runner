@@ -102,6 +102,16 @@ function populateYamlConfiguration(reader: FileReader, file: string, config: any
 					throw new Error(`Environment variable ${key} for script ${name} in ${file} must be a string.`);
 				}
 
+				if (/<parent\.env\.[a-zA-Z_]+>/.test(value)) {
+					const envMatch = value.match(/<parent\.env\.([a-zA-Z_]+)>/);
+
+					if (_.isUndefined(process.env[envMatch[1]])) {
+						throw new Error(`Environment variable ${key} for script ${name} in ${file} requires parent environment ${envMatch[1]} which does not exists.`);
+					}
+
+					value = process.env[envMatch[1]];
+				}
+
 				yaml.scripts[name].environment[key] = value;
 			});
 		}

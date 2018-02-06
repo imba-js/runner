@@ -181,6 +181,17 @@ scripts:
     script: echo "deploying ${STAGE} to ${URL}"
 ```
 
+You have to keep in mind, that no environment variables from your current process are passed into the scripts. If you 
+want to pass some, you need to mention them specifically:
+
+```yaml
+scripts:
+
+  deploy:
+    environment:
+      HOME: <parent.env.HOME>
+```
+
 ## Dependencies on scripts
 
 Scripts can depend on other scripts in which case the dependencies will be started automatically at the beginning.

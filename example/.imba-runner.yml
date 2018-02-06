@@ -24,6 +24,7 @@ scripts:
     mode: series
     except: [js:b]
     environment:
+      HOME: <parent.env.HOME>
       ENVIRONMENT: dev
     script:
       - env

@@ -94,6 +94,12 @@ describe('#yaml', () => {
 			}).to.throw(Error, 'Environment variable a for script a in config.yml must be a string.');
 		});
 
+		it('should throw an error if required parent environment variable does not exists', () => {
+			expect(() => {
+				readYaml('{projects: {}, scripts: {a: {environment: {a: <parent.env.IMBA_UNKNOWN_ENV>}}}}');
+			}).to.throw(Error, 'Environment variable a for script a in config.yml requires parent environment IMBA_UNKNOWN_ENV which does not exists.');
+		});
+
 		it('should throw an error if script except is not an array', () => {
 			expect(() => {
 				readYaml('{projects: {}, scripts: {a: {except: invalid}}}');
