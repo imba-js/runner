@@ -22,12 +22,20 @@ export function parseYamlData(file: string, yaml: YamlConfiguration): ImbaConfig
 			name: name,
 			mode: script.mode === 'series' ? ImbaScriptMode.Series : ImbaScriptMode.Parallel,
 			environment: {},
+			inputs: [],
 			dependencies: _.clone(script.dependencies),
 			projects: {},
 		};
 
 		_.forEach(script.environment, (value, key) => {
 			config.scripts[name].environment[key] = value;
+		});
+
+		_.forEach(script.inputs, (input) => {
+			config.scripts[name].inputs.push({
+				name: input.name,
+				question: input.question,
+			});
 		});
 
 		_.forEach(config.projects, (project, projectName) => {

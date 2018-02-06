@@ -47,6 +47,14 @@ export class InfoPrinter extends Printer
 				});
 			}
 
+			if (_.size(script.inputs)) {
+				this.output.log(`  ${chalk.magenta('Inputs:')}`);
+
+				_.forEach(script.inputs, (input) => {
+					this.output.log(`    - ${input.name}: ${input.question}`);
+				});
+			}
+
 			this.output.log(`  ${chalk.magenta('Projects:')}`);
 
 			_.forEach(script.projects, (scriptProject, scriptProjectName) => {

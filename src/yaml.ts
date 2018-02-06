@@ -71,6 +71,7 @@ function populateYamlConfiguration(reader: FileReader, file: string, config: any
 		yaml.scripts[name] = {
 			mode: 'parallel',
 			environment: {},
+			inputs: [],
 			except: [],
 			only: [],
 			dependencies: [],
@@ -113,6 +114,28 @@ function populateYamlConfiguration(reader: FileReader, file: string, config: any
 				}
 
 				yaml.scripts[name].environment[key] = value;
+			});
+		}
+
+		if (!_.isUndefined(script.inputs)) {
+			if (!_.isArray(script.inputs)) {
+				throw new Error(`Inputs for script ${name} in ${file} must be an array of inputs with questions ({name: NAME, question: QUESTION}).`);
+			}
+
+			_.forEach(script.inputs, (input) => {
+				if (!_.isPlainObject(input) || _.isUndefined(input.name) || _.isUndefined(input.question) || !_.isString(input.name) || !_.isString(input.question)) {
+					throw new Error(`Inputs for script ${name} in ${file} must be an array of inputs with questions ({name: NAME, question: QUESTION}).`);
+				}
+
+				if (!_.isUndefined(input.required) && !_.isBoolean(input.required)) {
+					throw new Error(`Required field for input ${input.name} for script ${name} in ${file} must be a boolean.`);
+				}
+
+				yaml.scripts[name].inputs.push({
+					name: input.name,
+					question: input.question,
+					required: _.isUndefined(input.required) ? false : input.required,
+				});
 			});
 		}
 

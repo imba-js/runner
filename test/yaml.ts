@@ -100,6 +100,34 @@ describe('#yaml', () => {
 			}).to.throw(Error, 'Environment variable a for script a in config.yml requires parent environment IMBA_UNKNOWN_ENV which does not exists.');
 		});
 
+		it('should throw an error if inputs is not an array', () => {
+			expect(() => {
+				readYaml('{projects: {}, scripts: {a: {inputs: invalid}}}');
+			}).to.throw(Error, 'Inputs for script a in config.yml must be an array of inputs with questions ({name: NAME, question: QUESTION}).');
+		});
+
+		it('should throw an error if input is not a valid object', () => {
+			expect(() => {
+				readYaml('{projects: {}, scripts: {a: {inputs: [invalid]}}}');
+			}).to.throw(Error, 'Inputs for script a in config.yml must be an array of inputs with questions ({name: NAME, question: QUESTION}).');
+
+			expect(() => {
+				readYaml('{projects: {}, scripts: {a: {inputs: [{}]}}}');
+			}).to.throw(Error, 'Inputs for script a in config.yml must be an array of inputs with questions ({name: NAME, question: QUESTION}).');
+
+			expect(() => {
+				readYaml('{projects: {}, scripts: {a: {inputs: [{name: NAME}]}}}');
+			}).to.throw(Error, 'Inputs for script a in config.yml must be an array of inputs with questions ({name: NAME, question: QUESTION}).');
+
+			expect(() => {
+				readYaml('{projects: {}, scripts: {a: {inputs: [{question: QUESTION}]}}}');
+			}).to.throw(Error, 'Inputs for script a in config.yml must be an array of inputs with questions ({name: NAME, question: QUESTION}).');
+
+			expect(() => {
+				readYaml('{projects: {}, scripts: {a: {inputs: [{name: NAME, question: QUESTION, required: ""}]}}}');
+			}).to.throw(Error, 'Required field for input NAME for script a in config.yml must be a boolean.');
+		});
+
 		it('should throw an error if script except is not an array', () => {
 			expect(() => {
 				readYaml('{projects: {}, scripts: {a: {except: invalid}}}');
@@ -188,6 +216,7 @@ describe('#yaml', () => {
 					a: {
 						mode: 'parallel',
 						environment: {},
+						inputs: [],
 						except: [],
 						only: [],
 						dependencies: [],
@@ -213,6 +242,7 @@ describe('#yaml', () => {
 					a: {
 						mode: 'parallel',
 						environment: {},
+						inputs: [],
 						except: [],
 						only: [],
 						dependencies: [],
@@ -238,6 +268,7 @@ describe('#yaml', () => {
 					a: {
 						mode: 'series',
 						environment: {},
+						inputs: [],
 						except: [],
 						only: [],
 						dependencies: [],
@@ -260,6 +291,33 @@ describe('#yaml', () => {
 							A: 'a',
 							B: 'b',
 						},
+						inputs: [],
+						except: [],
+						only: [],
+						dependencies: [],
+						before_script: [],
+						after_script: [],
+						script: [],
+						projects: {},
+					},
+				},
+			});
+		});
+
+		it('should parse scripts with inputs', () => {
+			expect(readYaml('{projects: {}, scripts: {a: {inputs: [{name: USER_NAME, question: "Your name?", required: true}]}}}')).to.be.eql({
+				projects: {},
+				scripts: {
+					a: {
+						mode: 'parallel',
+						environment: {},
+						inputs: [
+							{
+								name: 'USER_NAME',
+								question: 'Your name?',
+								required: true,
+							},
+						],
 						except: [],
 						only: [],
 						dependencies: [],
@@ -284,6 +342,7 @@ describe('#yaml', () => {
 					a: {
 						mode: 'parallel',
 						environment: {},
+						inputs: [],
 						except: [
 							'a',
 						],
@@ -310,6 +369,7 @@ describe('#yaml', () => {
 					a: {
 						mode: 'parallel',
 						environment: {},
+						inputs: [],
 						except: [],
 						only: [
 							'a',
@@ -331,6 +391,7 @@ describe('#yaml', () => {
 					a: {
 						mode: 'parallel',
 						environment: {},
+						inputs: [],
 						except: [],
 						only: [],
 						dependencies: [],
@@ -342,6 +403,7 @@ describe('#yaml', () => {
 					b: {
 						mode: 'parallel',
 						environment: {},
+						inputs: [],
 						except: [],
 						only: [],
 						dependencies: [
@@ -368,6 +430,7 @@ describe('#yaml', () => {
 					a: {
 						mode: 'parallel',
 						environment: {},
+						inputs: [],
 						except: [],
 						only: [],
 						dependencies: [],

@@ -1,6 +1,8 @@
 import {EventEmitter} from 'events';
-import {ImbaConfiguration, ImbaEnvironmentScriptConfiguration, ImbaProjectScriptConfiguration, ImbaProjectScriptListConfiguration} from '../definitions';
+import {ImbaConfiguration, ImbaEnvironmentScriptConfiguration, ImbaProjectScriptConfiguration, ImbaProjectScriptListConfiguration, ImbaInputScriptConfiguration} from '../definitions';
 import {RunnerFactory} from '../runners';
+import {Output} from '../outputs';
+import * as readline from 'readline';
 import * as _ from 'lodash';
 
 
@@ -24,14 +26,17 @@ export abstract class ScriptRunner extends EventEmitter
 
 	private runnerFactory: RunnerFactory;
 
+	private output: Output;
+
 	private config: ImbaConfiguration;
 
 
-	constructor(runnerFactory: RunnerFactory, config: ImbaConfiguration)
+	constructor(runnerFactory: RunnerFactory, output: Output, config: ImbaConfiguration)
 	{
 		super();
 
 		this.runnerFactory = runnerFactory;
+		this.output = output;
 		this.config = config;
 	}
 
@@ -40,19 +45,26 @@ export abstract class ScriptRunner extends EventEmitter
 	{
 		const script = this.config.scripts[scriptName];
 		const projects = script.projects;
+		const inputs = script.inputs;
+
+		let inputAnswers = {};
+
+		if (_.size(inputs)) {
+			inputAnswers = await this.askQuestions(inputs);
+		}
 
 		this.emit('start', scriptName);
-		const returnCode = await this.doRunScript(projects);
+		const returnCode = await this.doRunScript(projects, inputAnswers);
 		this.emit('end', returnCode);
 
 		return returnCode;
 	}
 
 
-	protected abstract async doRunScript(projects: ImbaProjectScriptListConfiguration): Promise<number>;
+	protected abstract async doRunScript(projects: ImbaProjectScriptListConfiguration, inputs: ImbaEnvironmentScriptConfiguration): Promise<number>;
 
 
-	protected async runProjectScript(scriptProject: ImbaProjectScriptConfiguration): Promise<number>
+	protected async runProjectScript(scriptProject: ImbaProjectScriptConfiguration, inputs: ImbaEnvironmentScriptConfiguration): Promise<number>
 	{
 		const scriptName = scriptProject.parentScript.name;
 		const scriptEnvironment = scriptProject.parentScript.environment;
@@ -61,21 +73,21 @@ export abstract class ScriptRunner extends EventEmitter
 		this.emit('projectStart', scriptProject);
 
 		if (scriptProject.beforeScript.length) {
-			await this.runScriptStack(scriptProject, scriptProject.beforeScript, this.modifyEnvironment(scriptEnvironment, {
+			await this.runScriptStack(scriptProject, scriptProject.beforeScript, this.modifyEnvironment(scriptEnvironment, inputs, {
 				IMBA_SCRIPT_NAME: scriptName,
 				IMBA_SCRIPT_TYPE_NAME: 'before_script',
 				IMBA_PROJECT_NAME: projectName,
 			}));
 		}
 
-		const returnCode = await this.runScriptStack(scriptProject, scriptProject.script, this.modifyEnvironment(scriptEnvironment, {
+		const returnCode = await this.runScriptStack(scriptProject, scriptProject.script, this.modifyEnvironment(scriptEnvironment, inputs, {
 			IMBA_SCRIPT_NAME: scriptName,
 			IMBA_SCRIPT_TYPE_NAME: 'script',
 			IMBA_PROJECT_NAME: projectName,
 		}));
 
 		if (scriptProject.afterScript.length) {
-			await this.runScriptStack(scriptProject, scriptProject.afterScript, this.modifyEnvironment(scriptEnvironment, {
+			await this.runScriptStack(scriptProject, scriptProject.afterScript, this.modifyEnvironment(scriptEnvironment, inputs, {
 				IMBA_SCRIPT_NAME: scriptName,
 				IMBA_SCRIPT_TYPE_NAME: 'after_script',
 				IMBA_PROJECT_NAME: projectName,
@@ -134,15 +146,51 @@ export abstract class ScriptRunner extends EventEmitter
 	}
 
 
-	private modifyEnvironment(environment: ImbaEnvironmentScriptConfiguration, append: ImbaEnvironmentScriptConfiguration): ImbaEnvironmentScriptConfiguration
+	private modifyEnvironment(environment: ImbaEnvironmentScriptConfiguration, inputs: ImbaEnvironmentScriptConfiguration, append: ImbaEnvironmentScriptConfiguration): ImbaEnvironmentScriptConfiguration
 	{
-		const env: ImbaEnvironmentScriptConfiguration = _.merge(_.clone(environment), append);
+		const env: ImbaEnvironmentScriptConfiguration = _.merge(_.clone(environment), inputs, append);
 
 		if (!_.isUndefined(process.env.PATH)) {
 			env.PATH = process.env.PATH;
 		}
 
 		return env;
+	}
+
+
+	private async askQuestions(inputs: Array<ImbaInputScriptConfiguration>): Promise<ImbaEnvironmentScriptConfiguration>
+	{
+		const result: ImbaEnvironmentScriptConfiguration = {};
+		const output = this.output;
+
+		const rl = readline.createInterface({
+			input: process.stdin,
+			output: process.stdout
+		});
+
+		async function askQuestion(question: string): Promise<string>
+		{
+			return new Promise<string>((resolve) => {
+				rl.question(`${question} `, (answer) => {
+					answer = answer.trim();
+
+					if (answer === '') {
+						output.log('This question is required.');
+						resolve(askQuestion(question));
+					} else {
+						resolve(answer);
+					}
+				});
+			});
+		}
+
+		for (let i = 0; i < inputs.length; i++) {
+			result[inputs[i].name] = await askQuestion(inputs[i].question);
+		}
+
+		rl.close();
+
+		return result;
 	}
 
 }

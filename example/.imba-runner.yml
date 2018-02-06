@@ -1,5 +1,8 @@
 projects:
 
+  root:
+    root: ./
+
   js:a:
     root: ./js_a
 
@@ -10,6 +13,15 @@ projects:
     root: ./php_a
 
 scripts:
+
+  project:install:
+    mode: series
+    only: [root]
+    inputs:
+      - {name: USER_NAME, question: "Please, enter your user name:", required: true}
+      - {name: USER_EMAIL, question: "Please, enter your user email:"}
+    script:
+      - env
 
   deps:install:
     mode: series
@@ -22,7 +34,7 @@ scripts:
 
   run:dev:
     mode: series
-    except: [js:b]
+    except: [root, js:b]
     environment:
       HOME: <parent.env.HOME>
       ENVIRONMENT: dev

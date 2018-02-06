@@ -76,10 +76,10 @@ export class MainRunner
 		let scriptPrinter: ScriptPrinter;
 
 		if (script.mode === ImbaScriptMode.Series) {
-			runner = new SeriesScriptRunner(this.runnerFactory, this.config);
+			runner = new SeriesScriptRunner(this.runnerFactory, this.output, this.config);
 			scriptPrinter = new SeriesScriptPrinter(this.output);
 		} else {
-			runner = new ParallelScriptRunner(this.runnerFactory, this.config);
+			runner = new ParallelScriptRunner(this.runnerFactory, this.output, this.config);
 			scriptPrinter = new ParallelScriptPrinter(this.output);
 		}
 
