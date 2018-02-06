@@ -181,8 +181,10 @@ scripts:
     script: echo "deploying ${STAGE} to ${URL}"
 ```
 
-You have to keep in mind, that no environment variables from your current process are passed into the scripts. If you 
-want to pass some, you need to mention them specifically:
+You have to keep in mind, that no environment variables from your current process are passed into the scripts. The only 
+exception to this is `PATH` variable which is passed automatically when available.
+
+If you want to pass some other environment variables into your scripts, you need to mention them specifically:
 
 ```yaml
 scripts:

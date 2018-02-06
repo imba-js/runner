@@ -136,7 +136,13 @@ export abstract class ScriptRunner extends EventEmitter
 
 	private modifyEnvironment(environment: ImbaEnvironmentScriptConfiguration, append: ImbaEnvironmentScriptConfiguration): ImbaEnvironmentScriptConfiguration
 	{
-		return _.merge(_.clone(environment), append);
+		const env: ImbaEnvironmentScriptConfiguration = _.merge(_.clone(environment), append);
+
+		if (!_.isUndefined(process.env.PATH)) {
+			env.PATH = process.env.PATH;
+		}
+
+		return env;
 	}
 
 }
