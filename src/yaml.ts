@@ -131,10 +131,21 @@ function populateYamlConfiguration(reader: FileReader, file: string, config: any
 					throw new Error(`Required field for input ${input.name} for script ${name} in ${file} must be a boolean.`);
 				}
 
+				let defaultInputValue = undefined;
+
+				if (!_.isUndefined(input.default)) {
+					if (!_.isString(input.default)) {
+						throw new Error(`Default value for input ${input.name} for script ${name} in ${file} must be a string.`);
+					}
+
+					defaultInputValue = input.default;
+				}
+
 				yaml.scripts[name].inputs.push({
 					name: input.name,
 					question: input.question,
 					required: _.isUndefined(input.required) ? false : input.required,
+					'default': defaultInputValue,
 				});
 			});
 		}

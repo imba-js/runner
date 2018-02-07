@@ -36,6 +36,7 @@ export function parseYamlData(file: string, yaml: YamlConfiguration): ImbaConfig
 				name: input.name,
 				question: input.question,
 				required: input.required,
+				'default': input.default,
 			});
 		});
 

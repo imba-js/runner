@@ -33,6 +33,7 @@ export declare interface ImbaInputScriptConfiguration
 	name: string,
 	question: string,
 	required: boolean,
+	'default': string|undefined,
 }
 
 
@@ -76,7 +77,7 @@ export declare interface YamlConfiguration
 		[name: string]: {
 			mode: string,
 			environment: {[name: string]: string},
-			inputs: Array<{name: string, question: string, required: boolean}>,
+			inputs: Array<{name: string, question: string, required: boolean, 'default': string|undefined}>,
 			except: Array<string>,
 			only: Array<string>,
 			dependencies: Array<string>,

@@ -171,13 +171,17 @@ export abstract class ScriptRunner extends EventEmitter
 		async function askQuestion(input: ImbaInputScriptConfiguration): Promise<string>
 		{
 			return new Promise<string>((resolve) => {
-				rl.question(`${input.question} `, (answer) => {
+				rl.question(`${input.question} ${_.isUndefined(input.default) ? '' : '[' + input.default + ']'}: `, (answer) => {
 					answer = answer.trim();
 
 					if (input.required && answer === '') {
 						output.log('This question is required.');
 						resolve(askQuestion(input));
 					} else {
+						if (!_.isUndefined(input.default)) {
+							answer = input.default;
+						}
+
 						resolve(answer);
 					}
 				});

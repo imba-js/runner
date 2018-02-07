@@ -126,6 +126,10 @@ describe('#yaml', () => {
 			expect(() => {
 				readYaml('{projects: {}, scripts: {a: {inputs: [{name: NAME, question: QUESTION, required: ""}]}}}');
 			}).to.throw(Error, 'Required field for input NAME for script a in config.yml must be a boolean.');
+
+			expect(() => {
+				readYaml('{projects: {}, scripts: {a: {inputs: [{name: NAME, question: QUESTION, default: []}]}}}');
+			}).to.throw(Error, 'Default value for input NAME for script a in config.yml must be a string.');
 		});
 
 		it('should throw an error if script except is not an array', () => {
@@ -305,7 +309,7 @@ describe('#yaml', () => {
 		});
 
 		it('should parse scripts with inputs', () => {
-			expect(readYaml('{projects: {}, scripts: {a: {inputs: [{name: USER_NAME, question: "Your name?", required: true}]}}}')).to.be.eql({
+			expect(readYaml('{projects: {}, scripts: {a: {inputs: [{name: USER_NAME, question: "Your name?", required: true, default: "John"}]}}}')).to.be.eql({
 				projects: {},
 				scripts: {
 					a: {
@@ -316,6 +320,7 @@ describe('#yaml', () => {
 								name: 'USER_NAME',
 								question: 'Your name?',
 								required: true,
+								'default': 'John',
 							},
 						],
 						except: [],

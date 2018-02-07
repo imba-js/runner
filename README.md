@@ -194,26 +194,29 @@ scripts:
       HOME: <parent.env.HOME>
 ```
 
-### Ask questions in CLI
+### Inputs - ask questions in CLI
 
 It wouldn't be really good to use custom environments for many things. Especially for dynamic things read from CLI input.
+
+Luckily there is a `inputs` configuration for scripts which are using the `stdin` from your terminal to read the input 
+from your keyboard.
 
 ```yaml
 scripts:
 
   git:configure:
     inputs:
-      - {name: USER_NAME, question: "Your name?", required: true}
+      - {name: USER_NAME, question: "Your name?", default: "John Doe"}
       - {name: USER_EMAIL, question: "Your email?", required: true}
     script:
       - git config --global user.name ${USER_NAME}
       - git config --global user.email ${USER_EMAIL}
 ```
 
-Now before imba-runner executes the actual scripts, it'll ask you two questions: what is your name and email. After you 
+Now before imba-runner executes the actual script, it'll ask you two questions: what is your name and email. After you 
 provide your answer, it'll run the two git config scripts.
 
-Also as you can see both questions are marked as required. The default value is false.
+As you can see there are also options to set default value or mark input as required.
 
 ## Dependencies on scripts
 
