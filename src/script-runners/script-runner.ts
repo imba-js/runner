@@ -178,7 +178,7 @@ export abstract class ScriptRunner extends EventEmitter
 						output.log('This question is required.');
 						resolve(askQuestion(input));
 					} else {
-						if (!_.isUndefined(input.default)) {
+						if (answer === '' && !_.isUndefined(input.default)) {
 							answer = input.default;
 						}
 
