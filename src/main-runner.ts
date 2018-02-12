@@ -1,4 +1,4 @@
-import {ImbaConfiguration, ImbaScriptConfiguration, ImbaScriptMode} from './definitions';
+import {ImbaConfiguration, ImbaProjectConfiguration, ImbaScriptConfiguration, ImbaScriptMode} from './definitions';
 import {ParallelScriptPrinter, ScriptPrinter, SeriesScriptPrinter} from './printers';
 import {ParallelScriptRunner, ScriptRunner, SeriesScriptRunner} from './script-runners';
 import {RunnerFactory} from './runners';
@@ -49,6 +49,17 @@ export class MainRunner
 
 		const returnCode = await this.runScript(script);
 		return finish(returnCode);
+	}
+
+
+	public runProjectCommand(project: ImbaProjectConfiguration, command: string): Promise<number>
+	{
+		const runner = new SeriesScriptRunner(this.runnerFactory, this.output, this.config);
+		const scriptPrinter = new SeriesScriptPrinter(this.output);
+
+		scriptPrinter.enablePrinter(runner);
+
+		return runner.runCommand(project, command, {});
 	}
 
 

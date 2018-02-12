@@ -313,6 +313,19 @@ or use `-d` alias:
 $ imba -d /path/to/monorepo <command>
 ```
 
+## CLI: execute custom command in project
+
+It's not always optimal to run predefined project. Imagine that you want to maybe install new npm dependency into one of 
+your projects. You surely don't want to create new script definition for that.
+
+Instead you can execute command directly in project from your terminal:
+
+```bash
+$ imba exec project-name -- yarn add @angular/material
+``` 
+
+**Notice the double dash after `project-name`. It separates the imba command from your custom command.** 
+
 ## About Lerna
 
 If your repository contains only JS code and nothing else, you should probably consider using 

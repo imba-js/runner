@@ -18,6 +18,7 @@ const argv = yargs
 	.option('dir', {alias: 'd', default: process.cwd()})
 	.command('info', 'Show information about all registered projects and scripts')
 	.command('run', 'Run defined script')
+	.command('exec', 'Execute given command in specific project')
 	.demandCommand()
 	.help('h')
 	.alias('h', 'help')
@@ -71,6 +72,25 @@ switch (argv._[0]) {
 		const script = config.scripts[argv._[1]];
 
 		runner.run(script).then((returnCode) => {
+			process.exit(returnCode);
+		});
+
+		break;
+	case 'exec':
+		if (_.isUndefined(argv._[1])) {
+			output.log(`Missing project name.`);
+			process.exit(1);
+		}
+
+		if (_.isUndefined(config.projects[argv._[1]])) {
+			output.log(`Project ${argv._[1]} is not defined.`);
+			process.exit(1);
+		}
+
+		const project = config.projects[argv._[1]];
+		const command = argv._.slice(2);
+
+		runner.runProjectCommand(project, command.join(' ')).then((returnCode) => {
 			process.exit(returnCode);
 		});
 

@@ -15,15 +15,15 @@ export class ParallelScriptPrinter extends ScriptPrinter
 		});
 
 		runner.addListener('commandRun', (command: ScriptCommandStartArg) => {
-			this.output.log(chalk.magenta(chalk.magenta(`[${command.scriptProject.project.name}]`) + ' - ' + command.command));
+			this.output.log(chalk.magenta(chalk.magenta(`[${command.project.name}]`) + ' - ' + command.command));
 		});
 
 		runner.addListener('commandStdout', (output: ScriptCommandOutputArg) => {
-			this.output.stdout(chalk.magenta(`[${output.scriptProject.project.name}]`) + ' ' + output.chunk);
+			this.output.stdout(chalk.magenta(`[${output.project.name}]`) + ' ' + output.chunk);
 		});
 
 		runner.addListener('commandStderr', (output: ScriptCommandOutputArg) => {
-			this.output.stderr(chalk.magenta(`[${output.scriptProject.project.name}]`) + ' ' + output.chunk);
+			this.output.stderr(chalk.magenta(`[${output.project.name}]`) + ' ' + output.chunk);
 		});
 	}
 
