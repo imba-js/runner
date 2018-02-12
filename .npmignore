@@ -6,3 +6,4 @@ example/
 README.md
 tsconfig.json
 yarn.lock
+lib/**/*.js.map
