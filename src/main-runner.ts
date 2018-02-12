@@ -3,7 +3,7 @@ import {ParallelScriptPrinter, ScriptPrinter, SeriesScriptPrinter} from './print
 import {ParallelScriptRunner, ScriptRunner, SeriesScriptRunner} from './script-runners';
 import {RunnerFactory} from './runners';
 import {Output} from './outputs';
-import chalk from "chalk";
+import chalk from 'chalk';
 
 
 export class MainRunner
@@ -59,7 +59,7 @@ export class MainRunner
 
 		scriptPrinter.enablePrinter(runner);
 
-		return runner.runCommand(project, command, {});
+		return runner.runCommand(project, command, runner.modifyEnvironment());
 	}
 
 

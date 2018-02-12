@@ -90,6 +90,18 @@ export abstract class ScriptRunner extends EventEmitter
 	}
 
 
+	public modifyEnvironment(environment: ImbaEnvironmentScriptConfiguration = {}, inputs: ImbaEnvironmentScriptConfiguration = {}, append: ImbaEnvironmentScriptConfiguration = {}): ImbaEnvironmentScriptConfiguration
+	{
+		const env: ImbaEnvironmentScriptConfiguration = _.merge(_.clone(environment), inputs, append);
+
+		if (!_.isUndefined(process.env.PATH)) {
+			env.PATH = process.env.PATH;
+		}
+
+		return env;
+	}
+
+
 	protected abstract async doRunScript(projects: ImbaProjectScriptListConfiguration, inputs: ImbaEnvironmentScriptConfiguration): Promise<number>;
 
 
@@ -145,18 +157,6 @@ export abstract class ScriptRunner extends EventEmitter
 		}
 
 		return returnCode;
-	}
-
-
-	private modifyEnvironment(environment: ImbaEnvironmentScriptConfiguration, inputs: ImbaEnvironmentScriptConfiguration, append: ImbaEnvironmentScriptConfiguration): ImbaEnvironmentScriptConfiguration
-	{
-		const env: ImbaEnvironmentScriptConfiguration = _.merge(_.clone(environment), inputs, append);
-
-		if (!_.isUndefined(process.env.PATH)) {
-			env.PATH = process.env.PATH;
-		}
-
-		return env;
 	}
 
 
