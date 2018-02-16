@@ -11,13 +11,9 @@ export class MockFileReader implements FileReader
 	public directories: Array<string> = [];
 
 
-	public readFile(file: string): string
+	public isFile(file: string): boolean
 	{
-		if (_.isUndefined(this.files[file])) {
-			return;
-		}
-
-		return this.files[file];
+		return !_.isUndefined(this.files[file]);
 	}
 
 

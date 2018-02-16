@@ -2,7 +2,7 @@ export interface FileReader
 {
 
 
-	readFile(file: string): string;
+	isFile(file: string): boolean;
 
 	isDirectory(path: string): boolean;
 

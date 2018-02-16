@@ -6,9 +6,9 @@ export class NativeFileReader implements FileReader
 {
 
 
-	public readFile(file: string): string
+	public isFile(file: string): boolean
 	{
-		return fs.readFileSync(file, {encoding: 'utf-8'});
+		return fs.existsSync(file) && fs.statSync(file).isFile();
 	}
 
 

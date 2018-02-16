@@ -1,11 +1,11 @@
 import {Runner} from './runner';
-import {ImbaEnvironmentScriptConfiguration} from '../definitions';
+import {CommandEnvList} from '../command';
 
 
 export interface RunnerFactory
 {
 
 
-	createRunner(root: string, command: string, environment: ImbaEnvironmentScriptConfiguration): Runner;
+	createRunner(root: string, command: string, environment: CommandEnvList): Runner;
 
 }

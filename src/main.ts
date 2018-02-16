@@ -1,21 +1,20 @@
 #!/usr/bin/env node
 
-import {readYamlConfiguration} from './yaml';
-import {parseYamlData} from './configuration';
+import {configFileLookup, loadImbaFromFile} from './configuration';
 import {SpawnRunnerFactory} from './runners';
 import {InfoPrinter} from './printers';
 import {NativeOutput} from './outputs';
 import {NativeFileReader} from './file-readers';
-import {MainRunner} from './main-runner';
+import {Executor} from './executor';
+import {Imba} from './imba';
 import * as yargs from 'yargs';
-import * as fs from 'fs';
 import * as path from 'path';
 import * as _ from 'lodash';
 
 
 const argv = yargs
 	.usage('Usage: $0 [options] <command>')
-	.option('dir', {alias: 'd', default: process.cwd()})
+	.option('config', {alias: 'c', default: `${process.cwd()}/.imba-runner`})
 	.command('info', 'Show information about all registered projects and scripts')
 	.command('run', 'Run defined script')
 	.command('exec', 'Execute given command in specific project')
@@ -27,49 +26,52 @@ const argv = yargs
 ;
 
 
-const dir: string = path.isAbsolute(argv.dir) ?
-	argv.dir :
-	path.resolve(argv.dir)
-;
+function showError(message: string): void
+{
+	yargs.showHelp();
+	output.log(message);
+	process.exit(1);
+}
+
 
 const output = new NativeOutput;
 const reader = new NativeFileReader;
 const runnerFactory = new SpawnRunnerFactory;
-const configFile: string = path.join(dir, '.imba-runner.yml');
 
 
-if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) {
-	yargs.showHelp();
-	output.log(`Directory ${dir} doesn't exists or is not a directory.`);
-	process.exit(1);
+let configFile: string = path.isAbsolute(argv.config) ?
+	argv.config :
+	path.resolve(argv.config)
+;
+
+configFile = configFileLookup(reader, configFile);
+
+
+if (!configFile) {
+	showError(`Configuration file ${argv.config} doesn't exists or is not a file.`);
 }
 
-if (!fs.existsSync(configFile) || !fs.statSync(configFile).isFile()) {
-	yargs.showHelp();
-	output.log(`Configuration file ${configFile} doesn't exists or is not a file.`);
-	process.exit(1);
+if (path.extname(configFile) === '.ts') {
+	require('ts-node').register();
 }
 
 
-const yaml = readYamlConfiguration(reader, configFile);
-const config = parseYamlData(configFile, yaml);
-const runner = new MainRunner(runnerFactory, output, config);
+const imba = loadImbaFromFile(configFile);
+const runner = new Executor(runnerFactory, output, imba);
 
 
 switch (argv._[0]) {
-	case 'info': (new InfoPrinter(output)).printInfo(config); break;
+	case 'info': (new InfoPrinter(output)).printInfo(configFile, imba); break;
 	case 'run':
 		if (_.isUndefined(argv._[1])) {
-			output.log(`Missing run script.`);
-			process.exit(1);
+			showError(`Missing run script.`);
 		}
 
-		if (_.isUndefined(config.scripts[argv._[1]])) {
-			output.log(`Script ${argv._[1]} is not defined.`);
-			process.exit(1);
+		if (!imba.hasScript(argv._[1])) {
+			showError(`Script ${argv._[1]} is not defined.`);
 		}
 
-		const script = config.scripts[argv._[1]];
+		const script = imba.getScript(argv._[1]);
 
 		runner.run(script).then((returnCode) => {
 			process.exit(returnCode);
@@ -78,16 +80,14 @@ switch (argv._[0]) {
 		break;
 	case 'exec':
 		if (_.isUndefined(argv._[1])) {
-			output.log(`Missing project name.`);
-			process.exit(1);
+			showError(`Missing project name.`);
 		}
 
-		if (_.isUndefined(config.projects[argv._[1]])) {
-			output.log(`Project ${argv._[1]} is not defined.`);
-			process.exit(1);
+		if (!imba.hasProject(argv._[1])) {
+			showError(`Project ${argv._[1]} is not defined.`);
 		}
 
-		const project = config.projects[argv._[1]];
+		const project = imba.getProject(argv._[1]);
 		const command = argv._.slice(2);
 
 		runner.runProjectCommand(project, command.join(' ')).then((returnCode) => {

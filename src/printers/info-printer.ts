@@ -1,5 +1,6 @@
 import {Printer} from './printer';
-import {ImbaConfiguration, ImbaScriptMode} from '../definitions';
+import {Imba} from '../imba';
+import {ScriptMode} from '../script';
 import chalk from 'chalk';
 import * as _ from 'lodash';
 
@@ -8,18 +9,18 @@ export class InfoPrinter extends Printer
 {
 
 
-	public printInfo(config: ImbaConfiguration): void
+	public printInfo(configFile: string, imba: Imba): void
 	{
 		this.output.log(chalk.bold.blue('Configuration'));
 		this.printSeparator();
-		this.output.log(config.file);
+		this.output.log(configFile);
 
 		this.output.log('');
 		this.output.log(chalk.bold.blue('Projects'));
 		this.printSeparator();
 
-		_.forEach(config.projects, (project, name) => {
-			this.output.log(chalk.green(name));
+		_.forEach(imba.getProjects(), (project) => {
+			this.output.log(chalk.green(project.name));
 			this.output.log(`  ${chalk.magenta('root')}: ${project.root}`);
 		});
 
@@ -27,56 +28,81 @@ export class InfoPrinter extends Printer
 		this.output.log(chalk.bold.blue('Scripts'));
 		this.printSeparator();
 
-		_.forEach(config.scripts, (script, name) => {
-			this.output.log(chalk.green(name));
-			this.output.log(`  ${chalk.magenta('Mode:')} ${ImbaScriptMode[script.mode]}`);
+		_.forEach(imba.getScripts(), (script) => {
+			this.output.log(chalk.green(script.name));
+			this.output.log(`  ${chalk.magenta('Mode:')} ${ScriptMode[script.getMode()]}`);
 
-			if (_.size(script.dependencies)) {
+			if (script.hasDependencies()) {
 				this.output.log(`  ${chalk.magenta('Dependencies:')}`);
 
-				_.forEach(script.dependencies, (dependency) => {
+				_.forEach(script.getDependencies(), (dependency) => {
 					this.output.log(`    - ${dependency}`);
 				});
 			}
 
-			if (_.size(script.environment)) {
+			if (script.hasEnvs()) {
 				this.output.log(`  ${chalk.magenta('Environment:')}`);
 
-				_.forEach(script.environment, (value, key) => {
-					this.output.log(`    - ${key}: ${value}`);
+				_.forEach(script.getEnvs(), (env) => {
+					this.output.log(`    - ${env.name}: ${env.value}`);
 				});
 			}
 
-			if (_.size(script.inputs)) {
+			if (script.hasInputs()) {
 				this.output.log(`  ${chalk.magenta('Inputs:')}`);
 
-				_.forEach(script.inputs, (input) => {
-					this.output.log(`    - ${input.required ? '(Required) ' : ''}${input.name}: ${input.question}`);
+				_.forEach(script.getInputs(), (input) => {
+					const meta = [];
+
+					if (input.required) {
+						meta.push('required');
+					}
+
+					if (!_.isUndefined(input.defaultValue)) {
+						meta.push(`default: ${input.defaultValue}`);
+					}
+
+					this.output.log(`    - ${meta.length ? '(' + meta.join(', ') + ') ' : ''}${input.name}: ${input.question}`);
 				});
 			}
 
 			this.output.log(`  ${chalk.magenta('Projects:')}`);
 
-			_.forEach(script.projects, (scriptProject, scriptProjectName) => {
-				this.output.log(`    ${chalk.green(scriptProjectName)}`);
+			_.forEach(script.getAllowedProjects(imba.getProjects()), (project) => {
+				this.output.log(`    ${chalk.green(project.name)}`);
 
-				if (scriptProject.beforeScript.length) {
+				const beforeCommands = script.createBeforeCommands({
+					project: project,
+					scriptReturnCode: undefined,
+				});
+
+				const afterCommands = script.createAfterCommands({
+					project: project,
+					scriptReturnCode: undefined,
+				});
+
+				const commands = script.createCommands({
+					project: project,
+					scriptReturnCode: undefined,
+				});
+
+				if (!beforeCommands.isEmpty()) {
 					this.output.log(`      ${chalk.magenta('before_script')}`);
-					_.forEach(scriptProject.beforeScript, (script) => {
-						this.output.log(`        - ${script}`);
+					_.forEach(beforeCommands.getCommands(), (cmd) => {
+						this.output.log(`        - ${cmd.command}`);
 					});
 				}
 
-				if (scriptProject.afterScript.length) {
+				if (!afterCommands.isEmpty()) {
 					this.output.log(`      ${chalk.magenta('after_script')}`);
-					_.forEach(scriptProject.afterScript, (script) => {
-						this.output.log(`        - ${script}`);
+					_.forEach(afterCommands.getCommands(), (cmd) => {
+						this.output.log(`        - ${cmd.command}`);
 					});
 				}
 
 				this.output.log(`      ${chalk.magenta('script')}`);
-				_.forEach(scriptProject.script, (script) => {
-					this.output.log(`        - ${script}`);
+				_.forEach(commands.getCommands(), (cmd) => {
+					this.output.log(`        - ${cmd.command}`);
 				});
 			});
 		});

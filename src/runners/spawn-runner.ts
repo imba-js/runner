@@ -6,9 +6,9 @@ export class SpawnRunner extends Runner
 {
 
 
-	public run(): Promise<number>
+	public async run(): Promise<number>
 	{
-		this.emit('start', this.command);
+		this.onStart.emit(this.command);
 
 		return new Promise<number>((resolve) => {
 			const child = spawn(this.command, [], {
@@ -18,15 +18,15 @@ export class SpawnRunner extends Runner
 			});
 
 			child.stdout.on('data', (chunk: string) => {
-				this.emit('stdout', chunk);
+				this.onStdout.emit(chunk);
 			});
 
 			child.stderr.on('data', (chunk: string) => {
-				this.emit('stderr', chunk);
+				this.onStderr.emit(chunk);
 			});
 
 			child.on('close', (returnCode) => {
-				this.emit('finish', returnCode);
+				this.onFinish.emit(returnCode);
 				resolve(returnCode);
 			});
 		});

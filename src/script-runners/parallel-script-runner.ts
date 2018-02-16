@@ -1,15 +1,16 @@
-import {ImbaEnvironmentScriptConfiguration, ImbaProjectScriptListConfiguration} from '../definitions';
 import {ScriptRunner} from './script-runner';
-import * as _ from 'lodash';
+import {Script} from '../script';
+import {Project} from '../project';
+import {CommandEnvList} from '../command';
 
 
 export class ParallelScriptRunner extends ScriptRunner
 {
 
 
-	protected async doRunScript(projects: ImbaProjectScriptListConfiguration, inputs: ImbaEnvironmentScriptConfiguration): Promise<number>
+	protected async doRunScript(projects: Array<Project>, script: Script, inputAnswers: CommandEnvList): Promise<number>
 	{
-		let totalSize = _.size(projects);
+		let totalSize = projects.length;
 		let returnCode = 0;
 		let finished = 0;
 
@@ -27,10 +28,8 @@ export class ParallelScriptRunner extends ScriptRunner
 				}
 			}
 
-			for (let name in projects) {
-				if (projects.hasOwnProperty(name)) {
-					this.runProjectScript(projects[name], inputs).then(finish);
-				}
+			for (let i = 0; i < projects.length; i++) {
+				this.runProjectScript(projects[i], script, inputAnswers).then(finish);
 			}
 		});
 	}

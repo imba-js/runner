@@ -1,6 +1,5 @@
 import {NativeFileReader} from '../../src/file-readers';
 import {expect} from 'chai';
-import * as path from 'path';
 
 
 let reader: NativeFileReader;
@@ -12,10 +11,11 @@ describe('#FileReaders/NativeFileReader', () => {
 		reader = new NativeFileReader;
 	});
 
-	describe('readFile()', () => {
+	describe('isFile()', () => {
 
-		it('should read file', () => {
-			expect(reader.readFile(path.join(__dirname, '_data', 'readFile.txt'))).to.be.equal('hello world');
+		it('should check if path is an existing file', () => {
+			expect(reader.isFile(__filename)).to.be.equal(true);
+			expect(reader.isFile(__dirname)).to.be.equal(false);
 		});
 
 	});

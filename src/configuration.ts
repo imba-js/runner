@@ -1,89 +1,46 @@
-import {ImbaConfiguration, ImbaScriptConfiguration, YamlConfiguration, ImbaScriptMode} from './definitions';
-import * as _ from 'lodash';
+import {FileReader} from './file-readers';
+import {Imba} from './imba';
+import * as path from 'path';
 
 
-export function parseYamlData(file: string, yaml: YamlConfiguration): ImbaConfiguration
+const allowedExtensions = ['.js', '.ts'];
+
+
+export function configFileLookup(fileReader: FileReader, file: string): string|undefined
 {
-	const config: ImbaConfiguration = {
-		file: file,
-		projects: {},
-		scripts: {},
-	};
+	if (fileReader.isFile(file)) {
+		return file;
+	}
 
-	_.forEach(yaml.projects, (project, name) => {
-		config.projects[name] = {
-			name: name,
-			root: project.root,
-		};
-	});
+	const ext = path.extname(file);
 
-	_.forEach(yaml.scripts, (script, name) => {
-		config.scripts[name] = {
-			name: name,
-			mode: script.mode === 'series' ? ImbaScriptMode.Series : ImbaScriptMode.Parallel,
-			environment: {},
-			inputs: [],
-			dependencies: _.clone(script.dependencies),
-			projects: {},
-		};
+	if (ext !== '' && allowedExtensions.indexOf(ext) < 0) {
+		return undefined;
+	}
 
-		_.forEach(script.environment, (value, key) => {
-			config.scripts[name].environment[key] = value;
-		});
+	for (let i = 0; i < allowedExtensions.length; i++) {
+		let currentFile = `${file}${allowedExtensions[i]}`;
 
-		_.forEach(script.inputs, (input) => {
-			config.scripts[name].inputs.push({
-				name: input.name,
-				question: input.question,
-				required: input.required,
-				'default': input.default,
-			});
-		});
+		if (fileReader.isFile(currentFile)) {
+			return currentFile;
+		}
+	}
 
-		_.forEach(config.projects, (project, projectName) => {
-			if (script.except.indexOf(projectName) >= 0) {
-				return;
-			}
-
-			if (script.only.length && script.only.indexOf(projectName) < 0) {
-				return;
-			}
-
-			const projectScripts = _.find(script.projects, (scriptProject, scriptProjectName) => {
-				return scriptProjectName === projectName;
-			});
-
-			config.scripts[name].projects[projectName] = {
-				project: project,
-				parentScript: config.scripts[name],
-				beforeScript: _.isUndefined(projectScripts) ? _.clone(script.before_script) : _.clone(projectScripts.before_script),
-				afterScript: _.isUndefined(projectScripts) ? _.clone(script.after_script) : _.clone(projectScripts.after_script),
-				script: _.isUndefined(projectScripts) ? _.clone(script.script) : _.clone(projectScripts.script),
-			};
-		});
-	});
-
-	_.forEach(config.scripts, (script) => {
-		script.dependencies = constructDependencies(config, script);
-	});
-
-	return config;
+	return undefined;
 }
 
 
-function constructDependencies(config: ImbaConfiguration, script: ImbaScriptConfiguration): Array<string>
+export function loadImbaFromFile(file: string): Imba
 {
-	let result: Array<string> = [];
+	if (path.extname(file) === '.ts') {
+		require('ts-node').register();
+	}
 
-	_.forEach(script.dependencies, (dependency: string) => {
-		result.push(dependency);
+	// todo: is there any better way?
+	const imba = new Imba;
+	global['imba'] = imba;
+	require(file);
+	delete global['imba'];
 
-		const innerScript = _.find(config.scripts, (script) => {
-			return script.name === dependency;
-		});
-
-		result = constructDependencies(config, innerScript).concat(result);
-	});
-
-	return result;
+	return imba;
 }
