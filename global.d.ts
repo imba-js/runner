@@ -1,4 +1,4 @@
-import {Imba} from './src/imba';
+import {Imba} from './lib/imba';
 
 
 declare global {

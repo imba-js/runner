@@ -6,6 +6,7 @@
 		"lib": [
 			"es5", "scripthost", "es2015.promise"
 		],
+		"declaration": true,
 		"outDir": "./lib"
 	},
 	"include": [
