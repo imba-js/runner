@@ -30,7 +30,7 @@ export class InfoPrinter extends Printer
 
 		_.forEach(imba.getScripts(), (script) => {
 			this.output.log(chalk.green(script.name));
-			this.output.log(`  ${chalk.magenta('Mode:')} ${ScriptMode[script.getMode()]}`);
+			this.output.log(`  ${chalk.magenta('Mode:')} ${script.getMode()}`);
 
 			if (script.hasDependencies()) {
 				this.output.log(`  ${chalk.magenta('Dependencies:')}`);
