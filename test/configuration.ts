@@ -45,8 +45,16 @@ describe('#loadImbaFromFile()', () => {
 		fileReader = new MockFileReader;
 	});
 
-	it('should load a config', () => {
+	it('should throw an error if file does not export Imba object', () => {
 		fileReader.files['config.js'] = {};
+
+		expect(() => {
+			loadImbaFromFile(fileReader, 'config.js');
+		}).to.throw(Error, 'config.js must export instance of Imba class.');
+	});
+
+	it('should load a config', () => {
+		fileReader.files['config.js'] = new Imba;
 		const imba = loadImbaFromFile(fileReader, 'config.js');
 
 		expect(imba).to.be.an.instanceOf(Imba);

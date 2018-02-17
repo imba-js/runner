@@ -23,7 +23,7 @@ export class MockFileReader implements FileReader
 	}
 
 
-	public require(file: string, globalScope: any = {}): any
+	public require(file: string): any
 	{
 		if (this.isFile(file)) {
 			return this.files[file];

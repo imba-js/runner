@@ -32,11 +32,11 @@ export function configFileLookup(fileReader: FileReader, file: string): string|u
 
 export function loadImbaFromFile(fileReader: FileReader, file: string): Imba
 {
-	const imba = new Imba;
+	const exported = <Imba>fileReader.require(file);
 
-	fileReader.require(file, {
-		imba: imba,
-	});
+	if (!exported.__isImba) {
+		throw new Error(`${file} must export instance of Imba class.`);
+	}
 
-	return imba;
+	return exported;
 }

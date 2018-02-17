@@ -40,14 +40,6 @@ describe('#FileReaders/NativeFileReader', () => {
 			expect(reader.require(path.resolve(__dirname, '_data', 'require_from_ts.ts'))).to.be.equal('hello world');
 		});
 
-		it('should require a file with set global variable', () => {
-			const exported = reader.require(path.resolve(__dirname, '_data', 'set_global.js'), {
-				greeting: 'hello world',
-			});
-
-			expect(exported).to.be.equal('hello world');
-		});
-
 	});
 
 });

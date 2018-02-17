@@ -7,6 +7,8 @@ export class Imba
 {
 
 
+	public readonly __isImba: boolean = true;
+
 	private _projects: Array<Project> = [];
 
 	private _scripts: Array<Script> = [];

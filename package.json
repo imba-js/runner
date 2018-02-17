@@ -8,13 +8,10 @@
 		"url": "https://www.davidkudera.com/"
 	},
 	"main": "./lib/index.js",
+	"types": "./lib/index.d.ts",
 	"bin": {
 		"imba": "./lib/main.js"
 	},
-	"types": [
-		"./global.d.ts",
-		"./lib/**/*.d.ts"
-	],
 	"dependencies": {
 		"chalk": "^2.3.0",
 		"lodash": "^4.17.4",

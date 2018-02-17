@@ -12,6 +12,9 @@ had sex and this was their child.
 **`.imba-runner.js`:**
 
 ```javascript
+const Imba = require('@imba/runner').Imba;
+const imba = new Imba;
+
 imba.project('api', './modules/api');
 imba.project('front', './modules/front');
 
@@ -34,6 +37,8 @@ imba.script('up', function(script) {
 imba.script('down', function(script) {
     script.cmd('docker-compose down');
 });
+
+module.exports = imba;
 ```
 
 Now you can run for example the `build` script like this:
@@ -200,6 +205,8 @@ imba.script('deploy', function(script) {
 By default each script run for each project in parallel. This can be changed to series mode if needed.
 
 ```javascript
+const ScriptMode = require('@imba/runner').ScriptMode;
+
 imba.project('a', './a');
 imba.project('b', './b');
 
@@ -208,7 +215,7 @@ imba.script('a', function(script) {
     script.cmd('echo "Running 1st script for project \'${IMBA_PROJECT_NAME}\'"');
     script.cmd('sleep 1');
     script.cmd('echo "Running 2nd script for project \'${IMBA_PROJECT_NAME}\'"');
-}).mode('series');
+}).mode(ScriptMode.Series);
 ```
 
 Now the output for the script `a` above should be something like this:
@@ -241,17 +248,18 @@ Also in that example, the first way should take about 4 seconds to finish and th
 
 ## With Typescript
 
-Config file can be also written in `.ts` file. Just rename it and profit.
-
-Be careful when using the `mode` option for `scripts`. Instead of using strings `series` or `parallel` use the available 
-enum:
+Config file can be also written in `.ts` file. Just rename it and profit:
 
 ```typescript
-import {ScriptMode} from '@imba/runner';
+import {Imba, ScriptMode} from '@imba/runner';
+
+const imba = new Imba;
 
 imba.script('a', (script) => {
     script.cmd('...');
 }).mode(ScriptMode.Series);
+
+export = imba;
 ```
 
 ## CLI: running scripts
