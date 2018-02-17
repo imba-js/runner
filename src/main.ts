@@ -6,7 +6,6 @@ import {InfoPrinter} from './printers';
 import {NativeOutput} from './outputs';
 import {NativeFileReader} from './file-readers';
 import {Executor} from './executor';
-import {Imba} from './imba';
 import * as yargs from 'yargs';
 import * as path from 'path';
 import * as _ from 'lodash';
@@ -56,7 +55,7 @@ if (path.extname(configFile) === '.ts') {
 }
 
 
-const imba = loadImbaFromFile(configFile);
+const imba = loadImbaFromFile(reader, configFile);
 const runner = new Executor(runnerFactory, output, imba);
 
 
