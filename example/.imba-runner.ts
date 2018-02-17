@@ -1,5 +1,8 @@
-import {ScriptMode} from '../src';
+import {Imba, ScriptMode} from '../src';
 import * as path from 'path';
+
+
+const imba = new Imba;
 
 
 imba.project('root', __dirname);
@@ -94,3 +97,6 @@ imba.script('sleep', (script) => {
 	})
 	.dependencies(['sleep:prepare'])
 ;
+
+
+export = imba;
