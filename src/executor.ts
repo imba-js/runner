@@ -124,7 +124,7 @@ export class Executor
 
 		scriptPrinter.enablePrinter(runner);
 
-		const projects = script.getAllowedProjects(this.imba.getProjects());
+		const projects = script.getAllowedProjects(this.imba);
 
 		return runner.runScript(projects, script, inputAnswers);
 	}

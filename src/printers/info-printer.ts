@@ -68,7 +68,7 @@ export class InfoPrinter extends Printer
 
 			this.output.log(`  ${chalk.magenta('Projects:')}`);
 
-			_.forEach(script.getAllowedProjects(imba.getProjects()), (project) => {
+			_.forEach(script.getAllowedProjects(imba), (project) => {
 				this.output.log(`    ${chalk.green(project.name)}`);
 
 				const beforeCommands = script.createBeforeCommands({

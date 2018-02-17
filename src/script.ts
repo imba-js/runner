@@ -166,17 +166,7 @@ export class Script
 
 	public getRecursiveScriptDependencies(imba: Imba): Array<Script>
 	{
-		let dependencies: Array<Script> = [];
-
-		for (let i = 0; i < this._dependencies.length; i++) {
-			let dependency = this._dependencies[i];
-			let script = imba.getScript(dependency);
-
-			dependencies.push(script);
-			dependencies = dependencies.concat(script.getRecursiveScriptDependencies(imba));
-		}
-
-		return dependencies;
+		return this._getRecursiveScriptDependencies(imba, []);
 	}
 
 
@@ -187,8 +177,9 @@ export class Script
 	}
 
 
-	public getAllowedProjects(projects: Array<Project>): Array<Project>
+	public getAllowedProjects(imba: Imba): Array<Project>
 	{
+		const projects = imba.getProjects();
 		const result: Array<Project> = [];
 
 		for (let i = 0; i < projects.length; i++) {
@@ -239,6 +230,33 @@ export class Script
 		this._definition(storage, context);
 
 		return storage;
+	}
+
+
+	private _getRecursiveScriptDependencies(imba: Imba, stack: Array<string>): Array<Script>
+	{
+		if (stack.indexOf(this.name) >= 0) {
+			throw new Error(`Script ${this.name} contains circular dependency: ${stack.join(', ')}.`);
+		}
+
+		stack.push(this.name);
+
+		let dependencies: Array<Script> = [];
+
+		for (let i = 0; i < this._dependencies.length; i++) {
+			let dependency = this._dependencies[i];
+
+			if (!imba.hasScript(dependency)) {
+				throw new Error(`Script ${this.name} depends on script ${dependency} which is not defined.`);
+			}
+
+			let script = imba.getScript(dependency);
+
+			dependencies.push(script);
+			dependencies = dependencies.concat(script._getRecursiveScriptDependencies(imba, stack));
+		}
+
+		return dependencies;
 	}
 
 }
