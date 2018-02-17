@@ -6,4 +6,6 @@ export interface FileReader
 
 	isDirectory(path: string): boolean;
 
+	require(file: string, globalScope?: any): any;
+
 }

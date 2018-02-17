@@ -1,5 +1,6 @@
 import {NativeFileReader} from '../../src/file-readers';
 import {expect} from 'chai';
+import * as path from 'path';
 
 
 let reader: NativeFileReader;
@@ -25,6 +26,26 @@ describe('#FileReaders/NativeFileReader', () => {
 		it('should check if path is an existing directory', () => {
 			expect(reader.isDirectory(__filename)).to.be.equal(false);
 			expect(reader.isDirectory(__dirname)).to.be.equal(true);
+		});
+
+	});
+
+	describe('require()', () => {
+
+		it('should require a js file', () => {
+			expect(reader.require(path.resolve(__dirname, '_data', 'require_from_js.js'))).to.be.equal('hello world');
+		});
+
+		it('should require a ts file', () => {
+			expect(reader.require(path.resolve(__dirname, '_data', 'require_from_ts.ts'))).to.be.equal('hello world');
+		});
+
+		it('should require a file with set global variable', () => {
+			const exported = reader.require(path.resolve(__dirname, '_data', 'set_global.js'), {
+				greeting: 'hello world',
+			});
+
+			expect(exported).to.be.equal('hello world');
 		});
 
 	});

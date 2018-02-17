@@ -6,7 +6,7 @@ export class MockFileReader implements FileReader
 {
 
 
-	public files: {[name: string]: string} = {};
+	public files: {[name: string]: any} = {};
 
 	public directories: Array<string> = [];
 
@@ -21,5 +21,16 @@ export class MockFileReader implements FileReader
 	{
 		return this.directories.indexOf(path) >= 0;
 	}
+
+
+	public require(file: string, globalScope: any = {}): any
+	{
+		if (this.isFile(file)) {
+			return this.files[file];
+		}
+
+		throw new Error(`File ${file} does not exists.`);
+	}
+
 
 }

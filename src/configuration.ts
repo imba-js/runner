@@ -30,17 +30,13 @@ export function configFileLookup(fileReader: FileReader, file: string): string|u
 }
 
 
-export function loadImbaFromFile(file: string): Imba
+export function loadImbaFromFile(fileReader: FileReader, file: string): Imba
 {
-	if (path.extname(file) === '.ts') {
-		require('ts-node').register();
-	}
-
-	// todo: is there any better way?
 	const imba = new Imba;
-	global['imba'] = imba;
-	require(file);
-	delete global['imba'];
+
+	fileReader.require(file, {
+		imba: imba,
+	});
 
 	return imba;
 }
