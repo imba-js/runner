@@ -16,23 +16,23 @@ imba.project('api', './modules/api');
 imba.project('front', './modules/front');
 
 imba.script('deps:install', function(script, ctx) {
-	if (ctx.project.name === 'api') {
-		script.cmd('composer install');
-	} else {
-		script.cmd('yarn install');
-	}
+    if (ctx.project.name === 'api') {
+        script.cmd('composer install');
+    } else {
+        script.cmd('yarn install');
+    }
 });
 
 imba.script('build', function(script) {
-	script.cmd('yarn run build');
+    script.cmd('yarn run build');
 }).only(['front']);
 
 imba.script('up', function(script) {
-	script.cmd('docker-compose up');
+    script.cmd('docker-compose up');
 });
 
 imba.script('down', function(script) {
-	script.cmd('docker-compose down');
+    script.cmd('docker-compose down');
 });
 ```
 
@@ -80,25 +80,25 @@ You can also say to run your script only for some projects or to exclude some ot
 
 ```javascript
 imba.script('a', function(script) {
-	script.cmd('echo "Run first command in script a"');
-	script.cmd('echo "Run second command in script a"');
-	script.cmd('echo "Run third command in script a"');
+    script.cmd('echo "Run first command in script a"');
+    script.cmd('echo "Run second command in script a"');
+    script.cmd('echo "Run third command in script a"');
 });
 
 imba.script('b', function(script, ctx) {
-	if (ctx.project.name === 'a') {
-		script.cmd('echo "Run script b in project a"');
-	} else {
-		script.cmd('echo "Run script b in project b"');
-	}
+    if (ctx.project.name === 'a') {
+        script.cmd('echo "Run script b in project a"');
+    } else {
+        script.cmd('echo "Run script b in project b"');
+    }
 });
 
 imba.script('c', function(script) {
-	script.cmd('echo "Run script c only in project a"');
+    script.cmd('echo "Run script c only in project a"');
 }).only(['a']);
 
 imba.script('d', function(script) {
-	script.cmd('echo "Run script d in all projects, except for a"');
+    script.cmd('echo "Run script d in all projects, except for a"');
 }).except(['a']);
 ```
 
@@ -109,11 +109,11 @@ the main scripts.
 
 ```javascript
 imba.script('a', function(script) {
-	script.cmd('echo "Running script a"');
+    script.cmd('echo "Running script a"');
 }).before(function(script) {
-	script.cmd('echo "Running before script for script a"');
+    script.cmd('echo "Running before script for script a"');
 }).after(function(script) {
-	script.cmd('echo "Running after script for script a"');
+    script.cmd('echo "Running after script for script a"');
 });
 ```
 
@@ -125,18 +125,18 @@ Imba-runner automatically adds some environment variables to your scripts.
 
 ```javascript
 imba.script('a', function(script) {
-	script.cmd('echo ${IMBA_SCRIPT_NAME}');        // output: a
-	script.cmd('echo ${IMBA_SCRIPT_TYPE_NAME}');   // output: before_script
-	script.cmd('echo ${IMBA_PROJECT_NAME}');       // output: currently running project
+    script.cmd('echo ${IMBA_SCRIPT_NAME}');        // output: a
+    script.cmd('echo ${IMBA_SCRIPT_TYPE_NAME}');   // output: before_script
+    script.cmd('echo ${IMBA_PROJECT_NAME}');       // output: currently running project
 }).before(function(script) {
-	script.cmd('echo ${IMBA_SCRIPT_NAME}');        // output: a
-	script.cmd('echo ${IMBA_SCRIPT_TYPE_NAME}');   // output: script
-	script.cmd('echo ${IMBA_PROJECT_NAME}');       // output: currently running project
+    script.cmd('echo ${IMBA_SCRIPT_NAME}');        // output: a
+    script.cmd('echo ${IMBA_SCRIPT_TYPE_NAME}');   // output: script
+    script.cmd('echo ${IMBA_PROJECT_NAME}');       // output: currently running project
 }).after(function(script) {
-	script.cmd('echo ${IMBA_SCRIPT_RETURN_CODE}'); // output: return code from last command in script
-	script.cmd('echo ${IMBA_SCRIPT_NAME}');        // output: a
-	script.cmd('echo ${IMBA_SCRIPT_TYPE_NAME}');   // output: before_script
-	script.cmd('echo ${IMBA_PROJECT_NAME}');       // output: currently running project
+    script.cmd('echo ${IMBA_SCRIPT_RETURN_CODE}'); // output: return code from last command in script
+    script.cmd('echo ${IMBA_SCRIPT_NAME}');        // output: a
+    script.cmd('echo ${IMBA_SCRIPT_TYPE_NAME}');   // output: before_script
+    script.cmd('echo ${IMBA_PROJECT_NAME}');       // output: currently running project
 });
 ```
 
@@ -144,9 +144,9 @@ New custom environment variables could be also added.
 
 ```javascript
 imba.script('deploy', function(script) {
-	script.cmd('echo "deploying ${STAGE} to ${URL}"');
+    script.cmd('echo "deploying ${STAGE} to ${URL}"');
 }).env('URL', 'example.com')
-	.env('STAGE', 'beta');
+    .env('STAGE', 'beta');
 ```
 
 You have to keep in mind, that no environment variables from your current process are passed into the scripts. The only 
@@ -156,7 +156,7 @@ If you want to pass some other environment variables into your scripts, you need
 
 ```javascript
 imba.script('deploy', function(script) {
-	script.cmd('echo "deploying ${STAGE} to ${URL}"');
+    script.cmd('echo "deploying ${STAGE} to ${URL}"');
 }).env('HOME', process.env.HOME);
 ```
 
@@ -170,10 +170,10 @@ from your keyboard.
 
 ```javascript
 imba.script('git:configure', function(script) {
-	script.cmd('git config --global user.name ${USER_NAME}');
-	script.cmd('git config --global user.email ${USER_EMAIL}');
+    script.cmd('git config --global user.name ${USER_NAME}');
+    script.cmd('git config --global user.email ${USER_EMAIL}');
 }).input('USER_NAME', 'Your name?', {defaultValue: 'John Doe'})
-	.input('USER_EMAIL', 'Your email?', {required: true});
+    .input('USER_EMAIL', 'Your email?', {required: true});
 ```
 
 Now before imba-runner executes the actual script, it'll ask you two questions: what is your name and email. After you 
@@ -187,11 +187,11 @@ Scripts can depend on other scripts in which case the dependencies will be start
 
 ```javascript
 imba.script('build', function(script) {
-	script.cmd('yarn run compile');
+    script.cmd('yarn run compile');
 });
 
 imba.script('deploy', function(script) {
-	script.cmd('echo "deploying..."');
+    script.cmd('echo "deploying..."');
 }).dependencies(['build']);
 ```
 
@@ -204,10 +204,10 @@ imba.project('a', './a');
 imba.project('b', './b');
 
 imba.script('a', function(script) {
-	script.cmd('sleep 1');
-	script.cmd('echo "Running 1st script for project \'${IMBA_PROJECT_NAME}\'"');
-	script.cmd('sleep 1');
-	script.cmd('echo "Running 2nd script for project \'${IMBA_PROJECT_NAME}\'"');
+    script.cmd('sleep 1');
+    script.cmd('echo "Running 1st script for project \'${IMBA_PROJECT_NAME}\'"');
+    script.cmd('sleep 1');
+    script.cmd('echo "Running 2nd script for project \'${IMBA_PROJECT_NAME}\'"');
 }).mode('series');
 ```
 
@@ -250,7 +250,7 @@ enum:
 import {ScriptMode} from '@imba/runner';
 
 imba.script('a', (script) => {
-	script.cmd('...');
+    script.cmd('...');
 }).mode(ScriptMode.Series);
 ```
 
