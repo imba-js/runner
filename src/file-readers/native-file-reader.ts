@@ -1,7 +1,6 @@
 import {FileReader} from './file-reader';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as _ from 'lodash';
 
 
 export class NativeFileReader implements FileReader
@@ -26,7 +25,10 @@ export class NativeFileReader implements FileReader
 	public require(file: string): any
 	{
 		if (path.extname(file) === '.ts' && !this._registeredTs) {
-			require('ts-node').register();
+			require('ts-node').register({
+				project: path.resolve(__dirname, '..', '..', 'config', 'tsconfig.json'),
+			});
+
 			this._registeredTs = true;
 		}
 
