@@ -1,6 +1,5 @@
 import {Printer} from './printer';
 import {Imba} from '../imba';
-import {ScriptMode} from '../script';
 import chalk from 'chalk';
 import * as _ from 'lodash';
 
@@ -73,16 +72,19 @@ export class InfoPrinter extends Printer
 
 				const beforeCommands = script.createBeforeCommands({
 					project: project,
+					env: {},
 					scriptReturnCode: undefined,
 				});
 
 				const afterCommands = script.createAfterCommands({
 					project: project,
+					env: {},
 					scriptReturnCode: undefined,
 				});
 
 				const commands = script.createCommands({
 					project: project,
+					env: {},
 					scriptReturnCode: undefined,
 				});
 

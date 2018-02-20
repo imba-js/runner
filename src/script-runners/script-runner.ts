@@ -83,36 +83,47 @@ export abstract class ScriptRunner
 			script: script,
 		});
 
+		let envList: EnvList;
+
 		if (script.hasBeforeDefinition()) {
-			await this.runScriptStack(project, script.createBeforeCommands({
-				project: project,
-				scriptReturnCode: undefined,
-			}), createScriptEnvironment(scriptEnvironment, inputAnswers, {
+			envList = createScriptEnvironment(scriptEnvironment, inputAnswers, {
 				IMBA_SCRIPT_NAME: scriptName,
 				IMBA_SCRIPT_TYPE_NAME: 'before_script',
 				IMBA_PROJECT_NAME: projectName,
-			}));
+			});
+
+			await this.runScriptStack(project, script.createBeforeCommands({
+				project: project,
+				env: envList,
+				scriptReturnCode: undefined,
+			}), envList);
 		}
 
-		const returnCode = await this.runScriptStack(project, script.createCommands({
-			project: project,
-			scriptReturnCode: undefined,
-		}), createScriptEnvironment(scriptEnvironment, inputAnswers, {
+		envList = createScriptEnvironment(scriptEnvironment, inputAnswers, {
 			IMBA_SCRIPT_NAME: scriptName,
 			IMBA_SCRIPT_TYPE_NAME: 'script',
 			IMBA_PROJECT_NAME: projectName,
-		}));
+		});
+
+		const returnCode = await this.runScriptStack(project, script.createCommands({
+			project: project,
+			env: envList,
+			scriptReturnCode: undefined,
+		}), envList);
 
 		if (script.hasAfterDefinition()) {
-			await this.runScriptStack(project, script.createAfterCommands({
-				project: project,
-				scriptReturnCode: returnCode,
-			}), createScriptEnvironment(scriptEnvironment, inputAnswers, {
+			envList = createScriptEnvironment(scriptEnvironment, inputAnswers, {
 				IMBA_SCRIPT_NAME: scriptName,
 				IMBA_SCRIPT_TYPE_NAME: 'after_script',
 				IMBA_PROJECT_NAME: projectName,
 				IMBA_SCRIPT_RETURN_CODE: `${returnCode}`,
-			}));
+			});
+
+			await this.runScriptStack(project, script.createAfterCommands({
+				project: project,
+				env: envList,
+				scriptReturnCode: returnCode,
+			}), envList);
 		}
 
 		this.onProjectEnd.emit({
