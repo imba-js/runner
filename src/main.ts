@@ -19,7 +19,9 @@ const argv = yargs
 	.command('exec', 'Execute given command in specific project')
 	.demandCommand()
 	.help('h')
+	.version(require('../package.json').version).describe('v', 'show installed version')
 	.alias('h', 'help')
+	.alias('v', 'version')
 	.strict()
 	.argv
 ;
