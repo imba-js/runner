@@ -1,6 +1,6 @@
 import {Input} from './input';
 import {Output} from './outputs';
-import {CommandEnvList} from './command';
+import {EnvList} from './environment-variable';
 import * as readline from 'readline';
 import * as _ from 'lodash';
 
@@ -18,9 +18,9 @@ export class Questions
 	}
 
 
-	public async askQuestions(inputs: Array<Input>): Promise<CommandEnvList>
+	public async askQuestions(inputs: Array<Input>): Promise<EnvList>
 	{
-		const result: CommandEnvList = {};
+		const result: EnvList = {};
 		const output = this.output;
 
 		const rl = readline.createInterface({

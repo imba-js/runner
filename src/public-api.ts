@@ -1,6 +1,6 @@
-export {Command, CommandEnvList} from './command';
+export {Command} from './command';
 export {CommandsStorage} from './commands-storage';
-export {EnvironmentVariable} from './environment-variable';
+export {EnvironmentVariable, EnvList} from './environment-variable';
 export {Imba} from './imba';
 export {Input, InputOptions} from './input';
 export {Project} from './project';

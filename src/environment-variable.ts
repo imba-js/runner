@@ -1,16 +1,21 @@
-import {CommandEnvList} from './command';
 import * as _ from 'lodash';
 
 
-export function createScriptEnvironment(scriptEnv: Array<EnvironmentVariable> = [], inputAnswers: CommandEnvList = {}, append: CommandEnvList = {}): CommandEnvList
+export declare interface EnvList
 {
-	const environment: CommandEnvList = {};
+	[name: string]: string,
+}
+
+
+export function createScriptEnvironment(scriptEnv: Array<EnvironmentVariable> = [], inputAnswers: EnvList = {}, append: EnvList = {}): EnvList
+{
+	const environment: EnvList = {};
 
 	for (let i = 0; i < scriptEnv.length; i++) {
 		environment[scriptEnv[i].name] = scriptEnv[i].value;
 	}
 
-	const env: CommandEnvList = _.merge(_.clone(environment), inputAnswers, append);
+	const env: EnvList = _.merge(_.clone(environment), inputAnswers, append);
 
 	if (!_.isUndefined(process.env.PATH)) {
 		env.PATH = process.env.PATH;

@@ -1,4 +1,4 @@
-import {CommandEnvList} from '../command';
+import {EnvList} from '../environment-variable';
 import {EventEmitter} from '../event-emitter';
 
 
@@ -18,10 +18,10 @@ export abstract class Runner
 
 	protected command: string;
 
-	protected environment: CommandEnvList;
+	protected environment: EnvList;
 
 
-	constructor(root: string, command: string, environment: CommandEnvList)
+	constructor(root: string, command: string, environment: EnvList)
 	{
 		this.root = root;
 		this.command = command;

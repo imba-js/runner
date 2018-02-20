@@ -1,9 +1,3 @@
-export declare interface CommandEnvList
-{
-	[name: string]: string,
-}
-
-
 export class Command
 {
 

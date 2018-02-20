@@ -1,11 +1,11 @@
 import {Runner} from './runner';
-import {CommandEnvList} from '../command';
+import {EnvList} from '../environment-variable';
 
 
 export interface RunnerFactory
 {
 
 
-	createRunner(root: string, command: string, environment: CommandEnvList): Runner;
+	createRunner(root: string, command: string, environment: EnvList): Runner;
 
 }

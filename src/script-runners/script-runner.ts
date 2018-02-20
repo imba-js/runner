@@ -1,11 +1,11 @@
 import {RunnerFactory} from '../runners';
 import {Output} from '../outputs';
-import {Command, CommandEnvList} from '../command';
+import {Command} from '../command';
 import {CommandsStorage} from '../commands-storage';
 import {Project} from '../project';
 import {Script} from '../script';
 import {EventEmitter} from '../event-emitter';
-import {createScriptEnvironment} from '../environment-variable';
+import {createScriptEnvironment, EnvList} from '../environment-variable';
 
 
 export declare interface ScriptCommandStartArg
@@ -59,7 +59,7 @@ export abstract class ScriptRunner
 	}
 
 
-	public async runScript(projects: Array<Project>, script: Script, inputAnswers: CommandEnvList = {}): Promise<number>
+	public async runScript(projects: Array<Project>, script: Script, inputAnswers: EnvList = {}): Promise<number>
 	{
 		this.onStart.emit(script.name);
 		const returnCode = await this.doRunScript(projects, script, inputAnswers);
@@ -69,10 +69,10 @@ export abstract class ScriptRunner
 	}
 
 
-	protected abstract async doRunScript(projects: Array<Project>, script: Script, inputAnswers: CommandEnvList): Promise<number>;
+	protected abstract async doRunScript(projects: Array<Project>, script: Script, inputAnswers: EnvList): Promise<number>;
 
 
-	protected async runProjectScript(project: Project, script: Script, inputAnswers: CommandEnvList): Promise<number>
+	protected async runProjectScript(project: Project, script: Script, inputAnswers: EnvList): Promise<number>
 	{
 		const scriptName = script.name;
 		const scriptEnvironment = script.getEnvs();
@@ -124,7 +124,7 @@ export abstract class ScriptRunner
 	}
 
 
-	private async runScriptStack(project: Project, commands: CommandsStorage, environment: CommandEnvList): Promise<number>
+	private async runScriptStack(project: Project, commands: CommandsStorage, environment: EnvList): Promise<number>
 	{
 		const _commands = commands.getCommands();
 		let returnCode = 0;
@@ -141,7 +141,7 @@ export abstract class ScriptRunner
 	}
 
 
-	private runCommand(project: Project, command: Command, environment: CommandEnvList = {}): Promise<number>
+	private runCommand(project: Project, command: Command, environment: EnvList = {}): Promise<number>
 	{
 		const runner = this.runnerFactory.createRunner(project.root, command.command, environment);
 

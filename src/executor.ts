@@ -6,8 +6,7 @@ import {Imba} from './imba';
 import {Script, ScriptMode} from './script';
 import {Project} from './project';
 import {Questions} from './questions';
-import {CommandEnvList} from './command';
-import {createScriptEnvironment} from './environment-variable';
+import {createScriptEnvironment, EnvList} from './environment-variable';
 import {Input} from './input';
 import chalk from 'chalk';
 
@@ -23,9 +22,9 @@ declare interface ScriptWithDependenciesInputs
 
 declare interface ScriptWithInputAnswers
 {
-	main: CommandEnvList,
+	main: EnvList,
 	dependencies: {
-		[scriptName: string]: CommandEnvList,
+		[scriptName: string]: EnvList,
 	},
 }
 
@@ -109,7 +108,7 @@ export class Executor
 	}
 
 
-	private runScript(script: Script, inputAnswers: CommandEnvList = {}): Promise<number>
+	private runScript(script: Script, inputAnswers: EnvList = {}): Promise<number>
 	{
 		let runner: ScriptRunner;
 		let scriptPrinter: ScriptPrinter;

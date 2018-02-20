@@ -1,14 +1,14 @@
 import {ScriptRunner} from './script-runner';
 import {Script} from '../script';
 import {Project} from '../project';
-import {CommandEnvList} from '../command';
+import {EnvList} from '../environment-variable';
 
 
 export class ParallelScriptRunner extends ScriptRunner
 {
 
 
-	protected async doRunScript(projects: Array<Project>, script: Script, inputAnswers: CommandEnvList): Promise<number>
+	protected async doRunScript(projects: Array<Project>, script: Script, inputAnswers: EnvList): Promise<number>
 	{
 		let totalSize = projects.length;
 		let returnCode = 0;
