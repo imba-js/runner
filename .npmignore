@@ -3,7 +3,6 @@ src/
 test/
 example/
 .travis.yml
-README.md
-tsconfig.json
+/tsconfig.json
 yarn.lock
 lib/**/*.js.map
