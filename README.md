@@ -107,6 +107,19 @@ imba.script('d', function(script) {
 }).except(['a']);
 ```
 
+## Use JS callbacks instead of CLI commands
+
+```javascript
+imba.script('a', function(script) {
+	script.callback('hello', function(ctx, stdout, stderr) {
+		stdout.emit('hello world');
+		stderr.emit(' from hell');
+	});
+});
+``` 
+
+Callbacks and CLI commands can be of course combined together.
+
 ## Run script before or after
 
 Just like in for example`.gitlab-ci.yml` file or in `deployer`, you can define special scripts to run before or after 

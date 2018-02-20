@@ -23,7 +23,7 @@ export class SeriesScriptPrinter extends ScriptPrinter
 		});
 
 		runner.onCommandRun.subscribe((command) => {
-			this.output.log(chalk.magenta(` - ${command.command}`));
+			this.output.log(chalk.magenta(` - ${command.command.name}`));
 		});
 
 		runner.onCommandStdout.subscribe((output) => {

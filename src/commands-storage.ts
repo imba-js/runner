@@ -1,4 +1,4 @@
-import {Command, CmdCommand} from './commands';
+import {Command, CmdCommand, CallbackCommand, CallbackCommandCallback} from './commands';
 import {RunnerFactory} from './runners';
 
 
@@ -19,8 +19,17 @@ export class CommandsStorage
 
 	public cmd(command: string): CommandsStorage
 	{
-		const _cmd = new CmdCommand(this._runnerFactory, command);
-		this._commands.push(_cmd);
+		const cmd = new CmdCommand(this._runnerFactory, command);
+		this._commands.push(cmd);
+
+		return this;
+	}
+
+
+	public callback(name: string, cb: CallbackCommandCallback): CommandsStorage
+	{
+		const cmd = new CallbackCommand(name, cb);
+		this._commands.push(cmd);
 
 		return this;
 	}

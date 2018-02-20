@@ -15,7 +15,7 @@ export class ParallelScriptPrinter extends ScriptPrinter
 		});
 
 		runner.onCommandRun.subscribe((command) => {
-			this.output.log(chalk.magenta(chalk.magenta(`[${command.project.name}]`) + ' - ' + command.command));
+			this.output.log(chalk.magenta(chalk.magenta(`[${command.project.name}]`) + ' - ' + command.command.name));
 		});
 
 		runner.onCommandStdout.subscribe((output) => {

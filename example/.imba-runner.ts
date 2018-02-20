@@ -2,6 +2,14 @@ import {Imba, ScriptMode} from '../src';
 import * as path from 'path';
 
 
+function sleep(ms): Promise<void>
+{
+	return new Promise((resolve) => {
+		setTimeout(resolve, ms);
+	});
+}
+
+
 const imba = new Imba;
 
 
@@ -87,6 +95,11 @@ imba.script('sleep:prepare', (script) => {
 
 
 imba.script('sleep', (script) => {
+	script.callback('sleep callback', async () => {
+		await sleep(5000);
+		return 0;
+	});
+
 	script.cmd('sleep 5');
 })
 	.before((script, ctx) => {
