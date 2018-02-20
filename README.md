@@ -111,10 +111,10 @@ imba.script('d', function(script) {
 
 ```javascript
 imba.script('a', function(script) {
-	script.callback('hello', function(ctx, stdout, stderr) {
-		stdout.emit('hello world');
-		stderr.emit(' from hell');
-	});
+    script.callback('hello', function(ctx, stdout, stderr) {
+        stdout.emit('hello world');
+        stderr.emit(' from hell');
+    });
 });
 ``` 
 
