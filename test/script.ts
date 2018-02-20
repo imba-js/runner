@@ -4,17 +4,20 @@ import {EnvironmentVariable} from '../src/environment-variable';
 import {Imba} from '../src/imba';
 import {Project} from '../src/project';
 import {CommandsStorage} from '../src/commands-storage';
-import {Command} from '../src/command';
+import {CmdCommand} from '../src/commands';
+import {MockRunnerFactory} from '../src/runners';
 import {expect} from 'chai';
 
 
 let imba: Imba;
 let script: Script;
+let runnerFactory: MockRunnerFactory;
 
 
 describe('#Script', () => {
 
 	beforeEach(() => {
+		runnerFactory = new MockRunnerFactory;
 		script = new Script('a', () => {});
 	});
 
@@ -169,8 +172,9 @@ describe('#Script', () => {
 	describe('createBeforeCommands()', () => {
 
 		it('should create empty commands storage', () => {
-			const commands = script.createBeforeCommands({
+			const commands = script.createBeforeCommands(runnerFactory, {
 				project: new Project('a', './a'),
+				env: {},
 				scriptReturnCode: undefined,
 			});
 
@@ -183,16 +187,17 @@ describe('#Script', () => {
 				storage.cmd('pwd');
 			});
 
-			const commands = script.createBeforeCommands({
+			const commands = script.createBeforeCommands(runnerFactory, {
 				project: new Project('a', './a'),
+				env: {},
 				scriptReturnCode: undefined,
 			});
 
 			expect(commands).to.be.an.instanceOf(CommandsStorage);
 			expect(commands.isEmpty()).to.be.equal(false);
 			expect(commands.getCommands()).to.have.lengthOf(1);
-			expect(commands.getCommands()[0]).to.be.an.instanceOf(Command);
-			expect(commands.getCommands()[0].command).to.be.equal('pwd');
+			expect(commands.getCommands()[0]).to.be.an.instanceOf(CmdCommand);
+			expect(commands.getCommands()[0].name).to.be.equal('pwd');
 		});
 
 	});
@@ -200,8 +205,9 @@ describe('#Script', () => {
 	describe('createAfterCommands()', () => {
 
 		it('should create empty commands storage', () => {
-			const commands = script.createAfterCommands({
+			const commands = script.createAfterCommands(runnerFactory, {
 				project: new Project('a', './a'),
+				env: {},
 				scriptReturnCode: undefined,
 			});
 
@@ -214,16 +220,17 @@ describe('#Script', () => {
 				storage.cmd('pwd');
 			});
 
-			const commands = script.createAfterCommands({
+			const commands = script.createAfterCommands(runnerFactory, {
 				project: new Project('a', './a'),
+				env: {},
 				scriptReturnCode: undefined,
 			});
 
 			expect(commands).to.be.an.instanceOf(CommandsStorage);
 			expect(commands.isEmpty()).to.be.equal(false);
 			expect(commands.getCommands()).to.have.lengthOf(1);
-			expect(commands.getCommands()[0]).to.be.an.instanceOf(Command);
-			expect(commands.getCommands()[0].command).to.be.equal('pwd');
+			expect(commands.getCommands()[0]).to.be.an.instanceOf(CmdCommand);
+			expect(commands.getCommands()[0].name).to.be.equal('pwd');
 		});
 
 	});
@@ -231,8 +238,9 @@ describe('#Script', () => {
 	describe('createCommands()', () => {
 
 		it('should create empty commands storage', () => {
-			const commands = script.createCommands({
+			const commands = script.createCommands(runnerFactory, {
 				project: new Project('a', './a'),
+				env: {},
 				scriptReturnCode: undefined,
 			});
 
@@ -245,16 +253,17 @@ describe('#Script', () => {
 				storage.cmd('pwd');
 			});
 
-			const commands = script.createCommands({
+			const commands = script.createCommands(runnerFactory, {
 				project: new Project('a', './a'),
+				env: {},
 				scriptReturnCode: undefined,
 			});
 
 			expect(commands).to.be.an.instanceOf(CommandsStorage);
 			expect(commands.isEmpty()).to.be.equal(false);
 			expect(commands.getCommands()).to.have.lengthOf(1);
-			expect(commands.getCommands()[0]).to.be.an.instanceOf(Command);
-			expect(commands.getCommands()[0].command).to.be.equal('pwd');
+			expect(commands.getCommands()[0]).to.be.an.instanceOf(CmdCommand);
+			expect(commands.getCommands()[0].name).to.be.equal('pwd');
 		});
 
 	});

@@ -1,5 +1,6 @@
 import {Printer} from './printer';
 import {Imba} from '../imba';
+import {MockRunnerFactory} from '../runners';
 import chalk from 'chalk';
 import * as _ from 'lodash';
 
@@ -10,6 +11,8 @@ export class InfoPrinter extends Printer
 
 	public printInfo(configFile: string, imba: Imba): void
 	{
+		const runnerFactory = new MockRunnerFactory;
+
 		this.output.log(chalk.bold.blue('Configuration'));
 		this.printSeparator();
 		this.output.log(configFile);
@@ -70,19 +73,19 @@ export class InfoPrinter extends Printer
 			_.forEach(script.getAllowedProjects(imba), (project) => {
 				this.output.log(`    ${chalk.green(project.name)}`);
 
-				const beforeCommands = script.createBeforeCommands({
+				const beforeCommands = script.createBeforeCommands(runnerFactory, {
 					project: project,
 					env: {},
 					scriptReturnCode: undefined,
 				});
 
-				const afterCommands = script.createAfterCommands({
+				const afterCommands = script.createAfterCommands(runnerFactory, {
 					project: project,
 					env: {},
 					scriptReturnCode: undefined,
 				});
 
-				const commands = script.createCommands({
+				const commands = script.createCommands(runnerFactory, {
 					project: project,
 					env: {},
 					scriptReturnCode: undefined,
@@ -91,20 +94,20 @@ export class InfoPrinter extends Printer
 				if (!beforeCommands.isEmpty()) {
 					this.output.log(`      ${chalk.magenta('before_script')}`);
 					_.forEach(beforeCommands.getCommands(), (cmd) => {
-						this.output.log(`        - ${cmd.command}`);
+						this.output.log(`        - ${cmd.name}`);
 					});
 				}
 
 				if (!afterCommands.isEmpty()) {
 					this.output.log(`      ${chalk.magenta('after_script')}`);
 					_.forEach(afterCommands.getCommands(), (cmd) => {
-						this.output.log(`        - ${cmd.command}`);
+						this.output.log(`        - ${cmd.name}`);
 					});
 				}
 
 				this.output.log(`      ${chalk.magenta('script')}`);
 				_.forEach(commands.getCommands(), (cmd) => {
-					this.output.log(`        - ${cmd.command}`);
+					this.output.log(`        - ${cmd.name}`);
 				});
 			});
 		});

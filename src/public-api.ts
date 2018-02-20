@@ -1,4 +1,4 @@
-export {Command} from './command';
+export {Command, CmdCommand} from './commands';
 export {CommandsStorage} from './commands-storage';
 export {EnvironmentVariable, EnvList} from './environment-variable';
 export {Imba} from './imba';

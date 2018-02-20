@@ -2,6 +2,7 @@ import {CommandsStorage} from './commands-storage';
 import {Input, InputOptions} from './input';
 import {EnvironmentVariable} from './environment-variable';
 import {RunContext} from './run-context';
+import {RunnerFactory} from './runners';
 import {Project} from './project';
 import {Imba} from './imba';
 import * as _ from 'lodash';
@@ -200,34 +201,34 @@ export class Script
 	}
 
 
-	public createBeforeCommands(context: RunContext): CommandsStorage
+	public createBeforeCommands(runnerFactory: RunnerFactory, ctx: RunContext): CommandsStorage
 	{
-		const storage = new CommandsStorage;
+		const storage = new CommandsStorage(runnerFactory);
 
 		if (this._before) {
-			this._before(storage, context);
+			this._before(storage, ctx);
 		}
 
 		return storage;
 	}
 
 
-	public createAfterCommands(context: RunContext): CommandsStorage
+	public createAfterCommands(runnerFactory: RunnerFactory, ctx: RunContext): CommandsStorage
 	{
-		const storage = new CommandsStorage;
+		const storage = new CommandsStorage(runnerFactory);
 
 		if (this._after) {
-			this._after(storage, context);
+			this._after(storage, ctx);
 		}
 
 		return storage;
 	}
 
 
-	public createCommands(context: RunContext): CommandsStorage
+	public createCommands(runnerFactory: RunnerFactory, ctx: RunContext): CommandsStorage
 	{
-		const storage = new CommandsStorage;
-		this._definition(storage, context);
+		const storage = new CommandsStorage(runnerFactory);
+		this._definition(storage, ctx);
 
 		return storage;
 	}

@@ -1,24 +1,26 @@
 import {RunnerFactory} from '../runners';
 import {Output} from '../outputs';
-import {Command} from '../command';
+import {Command} from '../commands';
 import {CommandsStorage} from '../commands-storage';
 import {Project} from '../project';
 import {Script} from '../script';
 import {EventEmitter} from '../event-emitter';
+import {RunContext} from '../run-context';
 import {createScriptEnvironment, EnvList} from '../environment-variable';
 
 
 export declare interface ScriptCommandStartArg
 {
-	command: string,
 	project: Project,
+	command: Command,
 }
 
 
 export declare interface ScriptCommandOutputArg
 {
-	chunk: string,
 	project: Project,
+	command: Command,
+	chunk: string,
 }
 
 
@@ -83,47 +85,47 @@ export abstract class ScriptRunner
 			script: script,
 		});
 
-		let envList: EnvList;
+		let ctx: RunContext;
 
 		if (script.hasBeforeDefinition()) {
-			envList = createScriptEnvironment(scriptEnvironment, inputAnswers, {
-				IMBA_SCRIPT_NAME: scriptName,
-				IMBA_SCRIPT_TYPE_NAME: 'before_script',
-				IMBA_PROJECT_NAME: projectName,
-			});
-
-			await this.runScriptStack(project, script.createBeforeCommands({
+			ctx = {
 				project: project,
-				env: envList,
+				env: createScriptEnvironment(scriptEnvironment, inputAnswers, {
+					IMBA_SCRIPT_NAME: scriptName,
+					IMBA_SCRIPT_TYPE_NAME: 'before_script',
+					IMBA_PROJECT_NAME: projectName,
+				}),
 				scriptReturnCode: undefined,
-			}), envList);
+			};
+
+			await this.runScriptStack(project, script.createBeforeCommands(this.runnerFactory, ctx), ctx);
 		}
 
-		envList = createScriptEnvironment(scriptEnvironment, inputAnswers, {
-			IMBA_SCRIPT_NAME: scriptName,
-			IMBA_SCRIPT_TYPE_NAME: 'script',
-			IMBA_PROJECT_NAME: projectName,
-		});
-
-		const returnCode = await this.runScriptStack(project, script.createCommands({
+		ctx = {
 			project: project,
-			env: envList,
+			env: createScriptEnvironment(scriptEnvironment, inputAnswers, {
+				IMBA_SCRIPT_NAME: scriptName,
+				IMBA_SCRIPT_TYPE_NAME: 'script',
+				IMBA_PROJECT_NAME: projectName,
+			}),
 			scriptReturnCode: undefined,
-		}), envList);
+		};
+
+		const returnCode = await this.runScriptStack(project, script.createCommands(this.runnerFactory, ctx), ctx);
 
 		if (script.hasAfterDefinition()) {
-			envList = createScriptEnvironment(scriptEnvironment, inputAnswers, {
-				IMBA_SCRIPT_NAME: scriptName,
-				IMBA_SCRIPT_TYPE_NAME: 'after_script',
-				IMBA_PROJECT_NAME: projectName,
-				IMBA_SCRIPT_RETURN_CODE: `${returnCode}`,
-			});
-
-			await this.runScriptStack(project, script.createAfterCommands({
+			ctx = {
 				project: project,
-				env: envList,
+				env: createScriptEnvironment(scriptEnvironment, inputAnswers, {
+					IMBA_SCRIPT_NAME: scriptName,
+					IMBA_SCRIPT_TYPE_NAME: 'after_script',
+					IMBA_PROJECT_NAME: projectName,
+					IMBA_SCRIPT_RETURN_CODE: `${returnCode}`,
+				}),
 				scriptReturnCode: returnCode,
-			}), envList);
+			};
+
+			await this.runScriptStack(project, script.createAfterCommands(this.runnerFactory, ctx), ctx);
 		}
 
 		this.onProjectEnd.emit({
@@ -135,13 +137,13 @@ export abstract class ScriptRunner
 	}
 
 
-	private async runScriptStack(project: Project, commands: CommandsStorage, environment: EnvList): Promise<number>
+	private async runScriptStack(project: Project, commands: CommandsStorage, ctx: RunContext): Promise<number>
 	{
 		const _commands = commands.getCommands();
 		let returnCode = 0;
 
 		for (let i = 0; i < _commands.length; i++) {
-			returnCode = await this.runCommand(project, _commands[i], environment);
+			returnCode = await this.runCommand(project, _commands[i], ctx);
 
 			if (returnCode > 0) {
 				return returnCode;
@@ -152,32 +154,32 @@ export abstract class ScriptRunner
 	}
 
 
-	private runCommand(project: Project, command: Command, environment: EnvList = {}): Promise<number>
+	private runCommand(project: Project, command: Command, ctx: RunContext): Promise<number>
 	{
-		const runner = this.runnerFactory.createRunner(project.root, command.command, environment);
-
-		runner.onStart.subscribe((command) => {
+		command.onStart.subscribe(() => {
 			this.onCommandRun.emit({
+				project: project,
 				command: command,
-				project: project,
 			});
 		});
 
-		runner.onStdout.subscribe((chunk) => {
+		command.onStdout.subscribe((chunk) => {
 			this.onCommandStdout.emit({
-				chunk: chunk,
 				project: project,
+				command: command,
+				chunk: chunk,
 			});
 		});
 
-		runner.onStderr.subscribe((chunk) => {
+		command.onStderr.subscribe((chunk) => {
 			this.onCommandStderr.emit({
-				chunk: chunk,
 				project: project,
+				command: command,
+				chunk: chunk,
 			});
 		});
 
-		return runner.run();
+		return command.run(ctx);
 	}
 
 }
