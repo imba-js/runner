@@ -38,12 +38,6 @@ Imba.script('down', function(script) {
 });
 ```
 
-Now you can run for example the `build` script like this:
-
-```bash
-$ imba run build
-```
-
 ## Benefits
 
 * Wrap difficult and long commands into easy to remember script
@@ -53,16 +47,38 @@ $ imba run build
 ## Installation
 
 ```bash
-$ npm install -g @imba/runner
+$ npm install --save-dev @imba/runner
 ```
 
 or with yarn
 
 ```bash
-$ yarn global add @imba/runner
+$ yarn add --dev @imba/runner
 ```
 
-Next create new `.imba-runner.js` file in the root of your monolithic repository.
+Next create new `.imba-runner.js` or `.imba-runner.ts` file in the root of your monolithic repository.
+
+As a last thing I suggest creating new executable file in `bin` directory inside of your repository for running imba 
+more easily:
+
+**bin/imba:**
+
+```javascript
+#!/usr/bin/env node
+require('@imba/runner/lib/main');
+```
+
+mark it as executable file:
+
+```bash
+$ chmod +x bin/imba
+```
+
+and finally run it like this:
+
+```bash
+bin/imba info
+```
 
 ## Projects
 
