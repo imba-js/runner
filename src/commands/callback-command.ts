@@ -26,7 +26,14 @@ export class CallbackCommand extends Command
 	{
 		this.onStart.emit(this);
 
-		let code = await this.cb(ctx, this.onStdout, this.onStderr);
+		let code: number;
+
+		try {
+			code = await <number>this.cb(ctx, this.onStdout, this.onStderr);
+		} catch (e) {
+			this.onStderr.emit(e.toString());
+			code = 1;
+		}
 
 		if (_.isUndefined(code)) {
 			code = 0;
