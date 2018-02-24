@@ -10,6 +10,14 @@ export class RunContext
 
 	public readonly env: EnvList;
 
-	public readonly scriptReturnCode: number|undefined;
+	public readonly inputs: EnvList;
+
+
+	constructor(project: Project, env: EnvList = {}, inputs: EnvList = {})
+	{
+		this.project = project;
+		this.env = env;
+		this.inputs = inputs;
+	}
 
 }

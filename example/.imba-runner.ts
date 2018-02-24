@@ -40,8 +40,8 @@ script('deps:install', (script, ctx) => {
 	.before((script) => {
 		script.cmd('echo "Starting to install dependencies"');
 	})
-	.after((script, ctx) => {
-		script.cmd(`echo "Return code from installation was ${ctx.scriptReturnCode}"`);
+	.after((script) => {
+		script.cmd(`echo "Finished deps:install"`);
 	})
 	.mode(ScriptMode.Series)
 ;
@@ -68,10 +68,10 @@ script('run:prod', (script) => {
 		.cmd('uptime')
 	;
 })
+	.before(['deps:install'])
 	.mode(ScriptMode.Series)
 	.only(['js:a'])
 	.env('ENVIRONMENT', 'prod')
-	.dependencies(['deps:install'])
 ;
 
 
@@ -85,13 +85,13 @@ script('work', (script) => {
 script('sleep:prepare', (script) => {
 	script.cmd('sleep 1');
 })
+	.before(['work'])
 	.before((script, ctx) => {
 		script.cmd(`echo "Preparing to sleep on ${ctx.project.name}"`);
 	})
 	.after((script, ctx) => {
 		script.cmd(`echo "Prepared to sleep on ${ctx.project.name}"`);
 	})
-	.dependencies(['work'])
 ;
 
 
@@ -103,11 +103,11 @@ script('sleep', (script) => {
 
 	script.cmd('sleep 5');
 })
+	.before(['sleep:prepare'])
 	.before((script, ctx) => {
 		script.cmd(`echo "Before sleep on ${ctx.project.name}"`);
 	})
 	.after((script, ctx) => {
 		script.cmd(`echo "After sleep on ${ctx.project.name}"`);
 	})
-	.dependencies(['sleep:prepare'])
 ;

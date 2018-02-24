@@ -10,6 +10,14 @@ import * as _ from 'lodash';
 
 export declare type ScriptDefinitionCallback = (storage: CommandsStorage, context: RunContext) => void;
 
+export declare interface RecursiveInputsList
+{
+	main: Array<Input>,
+	dependencies: {
+		[scriptName: string]: Array<Input>,
+	},
+}
+
 export enum ScriptMode
 {
 	Series = 'series',
@@ -23,7 +31,11 @@ export class Script
 
 	public readonly name: string;
 
+	private _imba: Imba;
+
 	private _definition: ScriptDefinitionCallback;
+
+	private _parent: Script|undefined;
 
 	private _mode: ScriptMode = ScriptMode.Parallel;
 
@@ -31,28 +43,32 @@ export class Script
 
 	private _except: Array<string> = [];
 
-	private _before: ScriptDefinitionCallback;
+	private _before: Array<Script> = [];
 
-	private _after: ScriptDefinitionCallback;
+	private _after: Array<Script> = [];
 
 	private _inputs: Array<Input> = [];
 
 	private _env: Array<EnvironmentVariable> = [];
 
-	private _dependencies: Array<string> = [];
-
 	private _hidden: boolean = false;
 
 
-	constructor(name: string, definition: ScriptDefinitionCallback)
+	constructor(imba: Imba, name: string, definition: ScriptDefinitionCallback, parent?: Script)
 	{
+		this._imba = imba;
 		this.name = name;
 		this._definition = definition;
+		this._parent = parent;
 	}
 
 
 	public getMode(): ScriptMode
 	{
+		if (this._parent) {
+			return this._parent.getMode();
+		}
+
 		return this._mode;
 	}
 
@@ -78,28 +94,89 @@ export class Script
 	}
 
 
-	public hasBeforeDefinition(): boolean
+	public hasBeforeScripts(): boolean
 	{
-		return !_.isUndefined(this._before);
+		return this._before.length > 0;
 	}
 
 
-	public before(definition: ScriptDefinitionCallback): Script
+	public getBeforeScripts(recursive: boolean = false): Array<Script>
 	{
-		this._before = definition;
+		if (!recursive) {
+			return this._before;
+		}
+
+		return this._getRecursiveScripts([], (script) => script.getBeforeScripts());
+	}
+
+
+	public before(scriptOrDefinition: ScriptDefinitionCallback|string|Array<string>): Script
+	{
+		if (_.isArray(scriptOrDefinition)) {
+			this._before = [];
+
+			for (let i = 0; i < scriptOrDefinition.length; i++) {
+				this.before(scriptOrDefinition[i]);
+			}
+
+			return this;
+		}
+
+		let script: Script;
+
+		if (_.isString(scriptOrDefinition)) {
+			script = this._imba.getScript(scriptOrDefinition, true);
+
+		} else {
+			script = (new Script(this._imba, `${this.name}:before:${this._before.length}`, scriptOrDefinition, this))
+				.hide();
+		}
+
+		this._before.push(script);
 		return this;
 	}
 
 
-	public hasAfterDefinition(): boolean
+	public hasAfterScripts(): boolean
 	{
-		return !_.isUndefined(this._after);
+		return this._after.length > 0;
 	}
 
 
-	public after(definition: ScriptDefinitionCallback): Script
+	public getAfterScripts(recursive: boolean = false): Array<Script>
 	{
-		this._after = definition;
+		if (!recursive) {
+			return this._after;
+		}
+
+		const scripts = this._getRecursiveScripts([], (script) => script.getAfterScripts());
+		return scripts.reverse();
+	}
+
+
+	public after(scriptOrDefinition: ScriptDefinitionCallback|string): Script
+	{
+		if (_.isArray(scriptOrDefinition)) {
+			this._after = [];
+
+			for (let i = 0; i < scriptOrDefinition.length; i++) {
+				this.after(scriptOrDefinition[i]);
+			}
+
+			return this;
+		}
+
+		let script: Script;
+
+		if (_.isString(scriptOrDefinition)) {
+			script = this._imba.getScript(scriptOrDefinition, true);
+
+		} else {
+			script = (new Script(this._imba, `${this.name}:after:${this._after.length}`, scriptOrDefinition, this))
+				.hide();
+		}
+
+		this._after.push(script);
 		return this;
 	}
 
@@ -113,6 +190,28 @@ export class Script
 	public getInputs(): Array<Input>
 	{
 		return this._inputs;
+	}
+
+
+	public getAllRecursiveInputs(): RecursiveInputsList
+	{
+		const before = this.getBeforeScripts(true);
+		const after = this.getAfterScripts(true);
+
+		const inputs: RecursiveInputsList = {
+			main: this.getInputs(),
+			dependencies: {},
+		};
+
+		for (let i = 0; i < before.length; i++) {
+			inputs.dependencies[before[i].name] = before[i].getInputs();
+		}
+
+		for (let i = 0; i < after.length; i++) {
+			inputs.dependencies[after[i].name] = after[i].getInputs();
+		}
+
+		return inputs;
 	}
 
 
@@ -155,44 +254,22 @@ export class Script
 	}
 
 
-	public hasDependencies(): boolean
+	public getAllowedProjects(): Array<Project>
 	{
-		return this._dependencies.length > 0;
-	}
+		const projects = this._imba.getProjects();
+		const only = this._parent ? this._parent._only : this._only;
+		const except = this._parent ? this._parent._except : this._except;
 
-
-	public getDependencies(): Array<string>
-	{
-		return this._dependencies;
-	}
-
-
-	public getRecursiveScriptDependencies(imba: Imba): Array<Script>
-	{
-		return this._getRecursiveScriptDependencies(imba, []);
-	}
-
-
-	public dependencies(dependencies: Array<string>): Script
-	{
-		this._dependencies = dependencies;
-		return this;
-	}
-
-
-	public getAllowedProjects(imba: Imba): Array<Project>
-	{
-		const projects = imba.getProjects();
 		const result: Array<Project> = [];
 
 		for (let i = 0; i < projects.length; i++) {
 			let project = projects[i];
 
-			if (this._except.indexOf(project.name) >= 0) {
+			if (except.indexOf(project.name) >= 0) {
 				continue;
 			}
 
-			if (this._only.length > 0 && this._only.indexOf(project.name) < 0) {
+			if (only.length > 0 && only.indexOf(project.name) < 0) {
 				continue;
 			}
 
@@ -200,30 +277,6 @@ export class Script
 		}
 
 		return result;
-	}
-
-
-	public createBeforeCommands(runnerFactory: RunnerFactory, ctx: RunContext): CommandsStorage
-	{
-		const storage = new CommandsStorage(runnerFactory);
-
-		if (this._before) {
-			this._before(storage, ctx);
-		}
-
-		return storage;
-	}
-
-
-	public createAfterCommands(runnerFactory: RunnerFactory, ctx: RunContext): CommandsStorage
-	{
-		const storage = new CommandsStorage(runnerFactory);
-
-		if (this._after) {
-			this._after(storage, ctx);
-		}
-
-		return storage;
 	}
 
 
@@ -249,7 +302,7 @@ export class Script
 	}
 
 
-	private _getRecursiveScriptDependencies(imba: Imba, stack: Array<string>): Array<Script>
+	private _getRecursiveScripts(stack: Array<string>, getter: (script: Script) => Array<Script>): Array<Script>
 	{
 		if (stack.indexOf(this.name) >= 0) {
 			throw new Error(`Script ${this.name} contains circular dependency: ${stack.join(', ')}.`);
@@ -257,22 +310,17 @@ export class Script
 
 		stack.push(this.name);
 
-		let dependencies: Array<Script> = [];
+		let result: Array<Script> = [];
+		let scripts = getter(this);
 
-		for (let i = 0; i < this._dependencies.length; i++) {
-			let dependency = this._dependencies[i];
+		for (let i = 0; i < scripts.length; i++) {
+			let script = scripts[i];
 
-			if (!imba.hasScript(dependency)) {
-				throw new Error(`Script ${this.name} depends on script ${dependency} which is not defined.`);
-			}
-
-			let script = imba.getScript(dependency);
-
-			dependencies.push(script);
-			dependencies = dependencies.concat(script._getRecursiveScriptDependencies(imba, stack));
+			result.push(script);
+			result = script._getRecursiveScripts(stack, getter).concat(result);
 		}
 
-		return dependencies;
+		return result;
 	}
 
 }

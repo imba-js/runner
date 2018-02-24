@@ -1,6 +1,12 @@
 import {Printer} from './printer';
 import {Imba} from '../imba';
 import {MockRunnerFactory} from '../runners';
+import {RunContext} from '../run-context';
+import {Script} from '../script';
+import {Project} from '../project';
+import {EnvironmentVariable} from '../environment-variable';
+import {Input} from '../input';
+import {Command} from '../commands';
 import chalk from 'chalk';
 import * as _ from 'lodash';
 
@@ -21,7 +27,7 @@ export class InfoPrinter extends Printer
 		this.output.log(chalk.bold.blue('Projects'));
 		this.printSeparator();
 
-		_.forEach(imba.getProjects(), (project) => {
+		_.forEach(imba.getProjects(), (project: Project) => {
 			this.output.log(chalk.green(project.name));
 			this.output.log(`  ${chalk.magenta('root')}: ${project.root}`);
 		});
@@ -30,7 +36,7 @@ export class InfoPrinter extends Printer
 		this.output.log(chalk.bold.blue('Scripts'));
 		this.printSeparator();
 
-		_.forEach(imba.getScripts(), (script) => {
+		_.forEach(imba.getScripts(), (script: Script) => {
 			if (script.isHidden()) {
 				return;
 			}
@@ -38,18 +44,10 @@ export class InfoPrinter extends Printer
 			this.output.log(chalk.green(script.name));
 			this.output.log(`  ${chalk.magenta('Mode:')} ${script.getMode()}`);
 
-			if (script.hasDependencies()) {
-				this.output.log(`  ${chalk.magenta('Dependencies:')}`);
-
-				_.forEach(script.getDependencies(), (dependency) => {
-					this.output.log(`    - ${dependency}`);
-				});
-			}
-
 			if (script.hasEnvs()) {
 				this.output.log(`  ${chalk.magenta('Environment:')}`);
 
-				_.forEach(script.getEnvs(), (env) => {
+				_.forEach(script.getEnvs(), (env: EnvironmentVariable) => {
 					this.output.log(`    - ${env.name}: ${env.value}`);
 				});
 			}
@@ -57,7 +55,7 @@ export class InfoPrinter extends Printer
 			if (script.hasInputs()) {
 				this.output.log(`  ${chalk.magenta('Inputs:')}`);
 
-				_.forEach(script.getInputs(), (input) => {
+				_.forEach(script.getInputs(), (input: Input) => {
 					const meta = [];
 
 					if (input.required) {
@@ -74,44 +72,45 @@ export class InfoPrinter extends Printer
 
 			this.output.log(`  ${chalk.magenta('Projects:')}`);
 
-			_.forEach(script.getAllowedProjects(imba), (project) => {
+			_.forEach(script.getAllowedProjects(), (project: Project) => {
 				this.output.log(`    ${chalk.green(project.name)}`);
 
-				const beforeCommands = script.createBeforeCommands(runnerFactory, {
-					project: project,
-					env: {},
-					scriptReturnCode: undefined,
-				});
+				const runContext = new RunContext(project);
 
-				const afterCommands = script.createAfterCommands(runnerFactory, {
-					project: project,
-					env: {},
-					scriptReturnCode: undefined,
-				});
-
-				const commands = script.createCommands(runnerFactory, {
-					project: project,
-					env: {},
-					scriptReturnCode: undefined,
-				});
-
-				if (!beforeCommands.isEmpty()) {
+				if (script.hasBeforeScripts()) {
 					this.output.log(`      ${chalk.magenta('before_script')}`);
-					_.forEach(beforeCommands.getCommands(), (cmd) => {
-						this.output.log(`        - ${cmd.name}`);
+
+					_.forEach(script.getBeforeScripts(), (beforeScript: Script) => {
+						if (beforeScript.isHidden()) {
+							_.forEach(beforeScript.createCommands(runnerFactory, runContext).getCommands(), (command: Command) => {
+								this.output.log(`        - Command: ${command.name}`);
+							});
+
+						} else {
+							this.output.log(`        - Script: ${beforeScript.name}`);
+						}
 					});
 				}
 
-				if (!afterCommands.isEmpty()) {
+				if (script.hasAfterScripts()) {
 					this.output.log(`      ${chalk.magenta('after_script')}`);
-					_.forEach(afterCommands.getCommands(), (cmd) => {
-						this.output.log(`        - ${cmd.name}`);
+
+					_.forEach(script.getAfterScripts(), (afterScript: Script) => {
+						if (afterScript.isHidden()) {
+							_.forEach(afterScript.createCommands(runnerFactory, runContext).getCommands(), (command: Command) => {
+								this.output.log(`        - Command: ${command.name}`);
+							});
+
+						} else {
+							this.output.log(`        - Script: ${afterScript.name}`);
+						}
 					});
 				}
 
 				this.output.log(`      ${chalk.magenta('script')}`);
-				_.forEach(commands.getCommands(), (cmd) => {
-					this.output.log(`        - ${cmd.name}`);
+
+				_.forEach(script.createCommands(runnerFactory, runContext).getCommands(), (command: Command) => {
+					this.output.log(`        - Command: ${command.name}`);
 				});
 			});
 		});

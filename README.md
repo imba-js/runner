@@ -148,7 +148,37 @@ Imba.script('a', function(script) {
 });
 ```
 
-**These `before` and `after` commands are called always when they're defined. Even if the main `script` fails.**
+**The `after` commands are called always when they're defined. Even if the main `script` fails.**
+
+More `before` or `after` scripts can be defined for a script. You can also reference another defined script:
+
+```javascript
+Imba.script('a', function() {});
+
+Imba.script('b', function() {})
+    .before('a')
+    .before(function() {});
+
+Imba.script('c', function() {})
+    .before('b')
+    .before(function() {});
+```
+
+Array of script names can be also provided, but in that case any other previously defined script will be removed:
+
+```javascript
+Imba.script('a:sad', function(script) {
+    script.cmd('echo "I will never be called :-("');
+});
+
+Imba.script('a:happy', function(script) {
+    script.cmd('echo "I will be called :-)"');
+});
+
+Imba.script('a', function() {})
+    .before('a:sad')
+    .before(['a:happy']);
+```
 
 ## Environment variables
 
@@ -164,7 +194,6 @@ Imba.script('a', function(script) {
     script.cmd('echo ${IMBA_SCRIPT_TYPE_NAME}');   // output: script
     script.cmd('echo ${IMBA_PROJECT_NAME}');       // output: currently running project
 }).after(function(script) {
-    script.cmd('echo ${IMBA_SCRIPT_RETURN_CODE}'); // output: return code from last command in script
     script.cmd('echo ${IMBA_SCRIPT_NAME}');        // output: a
     script.cmd('echo ${IMBA_SCRIPT_TYPE_NAME}');   // output: before_script
     script.cmd('echo ${IMBA_PROJECT_NAME}');       // output: currently running project
@@ -211,20 +240,6 @@ Now before imba-runner executes the actual script, it'll ask you two questions: 
 provide your answer, it'll run the two git config scripts.
 
 As you can see there are also options to set default value or mark input as required.
-
-## Dependencies on scripts
-
-Scripts can depend on other scripts in which case the dependencies will be started automatically first.
-
-```javascript
-Imba.script('build', function(script) {
-    script.cmd('yarn run compile');
-});
-
-Imba.script('deploy', function(script) {
-    script.cmd('echo "deploying..."');
-}).dependencies(['build']);
-```
 
 ## Running scripts in series
 

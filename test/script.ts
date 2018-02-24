@@ -6,19 +6,23 @@ import {Project} from '../src/project';
 import {CommandsStorage} from '../src/commands-storage';
 import {CmdCommand} from '../src/commands';
 import {MockRunnerFactory} from '../src/runners';
+import {RunContext} from '../src/run-context';
 import {expect} from 'chai';
 
 
 let imba: Imba;
 let script: Script;
 let runnerFactory: MockRunnerFactory;
+let ctx: RunContext;
 
 
 describe('#Script', () => {
 
 	beforeEach(() => {
+		imba = new Imba;
 		runnerFactory = new MockRunnerFactory;
-		script = new Script('a', () => {});
+		script = new Script(imba, 'a', () => {});
+		ctx = new RunContext(new Project('a', './a'));
 	});
 
 	it('should create new script', () => {
@@ -40,9 +44,21 @@ describe('#Script', () => {
 	describe('before()', () => {
 
 		it('should set before definition', () => {
-			expect(script.hasBeforeDefinition()).to.be.equal(false);
+			expect(script.hasBeforeScripts()).to.be.equal(false);
 			script.before(() => {});
-			expect(script.hasBeforeDefinition()).to.be.equal(true);
+			expect(script.hasBeforeScripts()).to.be.equal(true);
+		});
+
+		it('should get all before scripts recursively', () => {
+			const scriptA = imba.script('a', () => {});
+			const scriptB = imba.script('b', () => {}).before('a');
+			const scriptC = imba.script('c', () => {}).before('b');
+			const scriptD = imba.script('d', () => {}).before('c');
+
+			expect(scriptA.getBeforeScripts(true)).to.be.eql([]);
+			expect(scriptB.getBeforeScripts(true)).to.be.eql([scriptA]);
+			expect(scriptC.getBeforeScripts(true)).to.be.eql([scriptA, scriptB]);
+			expect(scriptD.getBeforeScripts(true)).to.be.eql([scriptA, scriptB, scriptC]);
 		});
 
 	});
@@ -50,9 +66,21 @@ describe('#Script', () => {
 	describe('after()', () => {
 
 		it('should set after definition', () => {
-			expect(script.hasAfterDefinition()).to.be.equal(false);
+			expect(script.hasAfterScripts()).to.be.equal(false);
 			script.after(() => {});
-			expect(script.hasAfterDefinition()).to.be.equal(true);
+			expect(script.hasAfterScripts()).to.be.equal(true);
+		});
+
+		it('should get all after scripts recursively', () => {
+			const scriptA = imba.script('a', () => {});
+			const scriptB = imba.script('b', () => {}).after('a');
+			const scriptC = imba.script('c', () => {}).after('b');
+			const scriptD = imba.script('d', () => {}).after('c');
+
+			expect(scriptA.getAfterScripts(true)).to.be.eql([]);
+			expect(scriptB.getAfterScripts(true)).to.be.eql([scriptA]);
+			expect(scriptC.getAfterScripts(true)).to.be.eql([scriptB, scriptA]);
+			expect(scriptD.getAfterScripts(true)).to.be.eql([scriptC, scriptB, scriptA]);
 		});
 
 	});
@@ -89,61 +117,7 @@ describe('#Script', () => {
 
 	});
 
-	describe('dependencies()', () => {
-
-		it('should set dependencies', () => {
-			expect(script.hasDependencies()).to.be.equal(false);
-
-			script.dependencies(['a']);
-
-			expect(script.hasDependencies()).to.be.equal(true);
-			expect(script.getDependencies()).to.be.eql(['a']);
-		});
-
-	});
-
-	describe('getRecursiveScriptDependencies()', () => {
-
-		beforeEach(() => {
-			imba = new Imba;
-		});
-
-		it('should throw an error if dependent script does not exists', () => {
-			imba.script('a', () => {}).dependencies(['b']);
-
-			expect(() => {
-				imba.getScript('a').getRecursiveScriptDependencies(imba);
-			}).to.throw(Error, 'Script a depends on script b which is not defined.');
-		});
-
-		it('should throw an error if circular dependency was detected', () => {
-			imba.script('a', () => {}).dependencies(['b']);
-			imba.script('b', () => {}).dependencies(['c']);
-			imba.script('c', () => {}).dependencies(['a']);
-
-			expect(() => {
-				imba.getScript('a').getRecursiveScriptDependencies(imba);
-			}).to.throw(Error, 'Script a contains circular dependency: a, b, c.');
-		});
-
-		it('should get all dependent scripts recursively', () => {
-			imba.script('a', () => {}).dependencies(['b']);
-			imba.script('b', () => {}).dependencies(['c']);
-			imba.script('c', () => {});
-
-			expect(imba.getScript('a').getRecursiveScriptDependencies(imba)).to.be.eql([
-				imba.getScript('b'),
-				imba.getScript('c'),
-			]);
-		});
-
-	});
-
 	describe('getAllowedProjects()', () => {
-
-		beforeEach(() => {
-			imba = new Imba;
-		});
 
 		it('should return all allowed projects', () => {
 			imba.project('a', './a');
@@ -162,75 +136,9 @@ describe('#Script', () => {
 			const scriptB = imba.getScript('b');
 			const scriptC = imba.getScript('c');
 
-			expect(scriptA.getAllowedProjects(imba)).to.be.eql([projectA, projectB, projectC]);
-			expect(scriptB.getAllowedProjects(imba)).to.be.eql([projectA]);
-			expect(scriptC.getAllowedProjects(imba)).to.be.eql([projectA, projectC]);
-		});
-
-	});
-
-	describe('createBeforeCommands()', () => {
-
-		it('should create empty commands storage', () => {
-			const commands = script.createBeforeCommands(runnerFactory, {
-				project: new Project('a', './a'),
-				env: {},
-				scriptReturnCode: undefined,
-			});
-
-			expect(commands).to.be.an.instanceOf(CommandsStorage);
-			expect(commands.isEmpty()).to.be.equal(true);
-		});
-
-		it('should create commands storage from definition', () => {
-			script.before((storage) => {
-				storage.cmd('pwd');
-			});
-
-			const commands = script.createBeforeCommands(runnerFactory, {
-				project: new Project('a', './a'),
-				env: {},
-				scriptReturnCode: undefined,
-			});
-
-			expect(commands).to.be.an.instanceOf(CommandsStorage);
-			expect(commands.isEmpty()).to.be.equal(false);
-			expect(commands.getCommands()).to.have.lengthOf(1);
-			expect(commands.getCommands()[0]).to.be.an.instanceOf(CmdCommand);
-			expect(commands.getCommands()[0].name).to.be.equal('pwd');
-		});
-
-	});
-
-	describe('createAfterCommands()', () => {
-
-		it('should create empty commands storage', () => {
-			const commands = script.createAfterCommands(runnerFactory, {
-				project: new Project('a', './a'),
-				env: {},
-				scriptReturnCode: undefined,
-			});
-
-			expect(commands).to.be.an.instanceOf(CommandsStorage);
-			expect(commands.isEmpty()).to.be.equal(true);
-		});
-
-		it('should create commands storage from definition', () => {
-			script.after((storage) => {
-				storage.cmd('pwd');
-			});
-
-			const commands = script.createAfterCommands(runnerFactory, {
-				project: new Project('a', './a'),
-				env: {},
-				scriptReturnCode: undefined,
-			});
-
-			expect(commands).to.be.an.instanceOf(CommandsStorage);
-			expect(commands.isEmpty()).to.be.equal(false);
-			expect(commands.getCommands()).to.have.lengthOf(1);
-			expect(commands.getCommands()[0]).to.be.an.instanceOf(CmdCommand);
-			expect(commands.getCommands()[0].name).to.be.equal('pwd');
+			expect(scriptA.getAllowedProjects()).to.be.eql([projectA, projectB, projectC]);
+			expect(scriptB.getAllowedProjects()).to.be.eql([projectA]);
+			expect(scriptC.getAllowedProjects()).to.be.eql([projectA, projectC]);
 		});
 
 	});
@@ -238,26 +146,18 @@ describe('#Script', () => {
 	describe('createCommands()', () => {
 
 		it('should create empty commands storage', () => {
-			const commands = script.createCommands(runnerFactory, {
-				project: new Project('a', './a'),
-				env: {},
-				scriptReturnCode: undefined,
-			});
+			const commands = script.createCommands(runnerFactory, ctx);
 
 			expect(commands).to.be.an.instanceOf(CommandsStorage);
 			expect(commands.isEmpty()).to.be.equal(true);
 		});
 
 		it('should create commands storage from definition', () => {
-			script = new Script('a', (storage) => {
+			script = new Script(imba, 'a', (storage) => {
 				storage.cmd('pwd');
 			});
 
-			const commands = script.createCommands(runnerFactory, {
-				project: new Project('a', './a'),
-				env: {},
-				scriptReturnCode: undefined,
-			});
+			const commands = script.createCommands(runnerFactory, ctx);
 
 			expect(commands).to.be.an.instanceOf(CommandsStorage);
 			expect(commands.isEmpty()).to.be.equal(false);

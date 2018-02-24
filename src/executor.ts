@@ -3,21 +3,11 @@ import {ParallelScriptRunner, ScriptRunner, SeriesScriptRunner} from './script-r
 import {RunnerFactory} from './runners';
 import {Output} from './outputs';
 import {Imba} from './imba';
-import {Script, ScriptMode} from './script';
+import {Script, ScriptMode, RecursiveInputsList} from './script';
 import {Project} from './project';
 import {Questions} from './questions';
 import {createScriptEnvironment, EnvList} from './environment-variable';
-import {Input} from './input';
 import chalk from 'chalk';
-
-
-declare interface ScriptWithDependenciesInputs
-{
-	main: Array<Input>,
-	dependencies: {
-		[scriptName: string]: Array<Input>,
-	},
-}
 
 
 declare interface ScriptWithInputAnswers
@@ -64,17 +54,25 @@ export class Executor
 			return returnCode;
 		};
 
-		const dependencies = script.getRecursiveScriptDependencies(this.imba);
-		const inputs = this.getAllInputs(script, dependencies);
+		const beforeScripts = script.getBeforeScripts(true);
+		const afterScripts = script.getAfterScripts(true);
+
+		const inputs = script.getAllRecursiveInputs();
 		const answers = await this.getInputAnswers(inputs);
 
-		const dependenciesReturnCode = await this.runDependencies(dependencies, answers);
+		const beforeScriptsReturnCode = await this.runScriptsList(beforeScripts, answers);
 
-		if (dependenciesReturnCode > 0) {
-			return finish(dependenciesReturnCode);
+		if (beforeScriptsReturnCode > 0) {
+			return finish(beforeScriptsReturnCode);
 		}
 
 		const returnCode = await this.runScript(script, answers.main);
+		const afterScriptsReturnCode = await this.runScriptsList(afterScripts, answers);
+
+		if (returnCode === 0 && afterScriptsReturnCode > 0) {
+			return finish(afterScriptsReturnCode);
+		}
+
 		return finish(returnCode);
 	}
 
@@ -90,12 +88,12 @@ export class Executor
 	}
 
 
-	private async runDependencies(dependencies: Array<Script>, answers: ScriptWithInputAnswers): Promise<number>
+	private async runScriptsList(scripts: Array<Script>, answers: ScriptWithInputAnswers): Promise<number>
 	{
 		let returnCode = 0;
 
-		for (let i = 0; i < dependencies.length; i++) {
-			returnCode = await this.runScript(dependencies[i], answers.dependencies[dependencies[i].name]);
+		for (let i = 0; i < scripts.length; i++) {
+			returnCode = await this.runScript(scripts[i], answers.dependencies[scripts[i].name]);
 
 			this.output.log('');
 
@@ -123,40 +121,13 @@ export class Executor
 
 		scriptPrinter.enablePrinter(runner);
 
-		const projects = script.getAllowedProjects(this.imba);
+		const projects = script.getAllowedProjects();
 
 		return runner.runScript(projects, script, inputAnswers);
 	}
 
 
-	private getAllInputs(script: Script, dependencies: Array<Script>): ScriptWithDependenciesInputs
-	{
-		const result: ScriptWithDependenciesInputs = {
-			main: [],
-			dependencies: {},
-		};
-
-		let inputs = script.getInputs();
-		for (let i = 0; i < inputs.length; i++) {
-			result.main.push(inputs[i]);
-		}
-
-		for (let i = 0; i < dependencies.length; i++) {
-			let dependency = dependencies[i];
-			let inputs = dependencies[i].getInputs();
-
-			result.dependencies[dependency.name] = [];
-
-			for (let j = 0; j < inputs.length; j++) {
-				result.dependencies[dependency.name].push(inputs[j]);
-			}
-		}
-
-		return result;
-	}
-
-
-	private async getInputAnswers(inputs: ScriptWithDependenciesInputs): Promise<ScriptWithInputAnswers>
+	private async getInputAnswers(inputs: RecursiveInputsList): Promise<ScriptWithInputAnswers>
 	{
 		const questions = new Questions(this.output);
 		const result: ScriptWithInputAnswers = {

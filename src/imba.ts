@@ -7,8 +7,6 @@ export class Imba
 {
 
 
-	public readonly __isImba: boolean = true;
-
 	private _projects: Array<Project> = [];
 
 	private _scripts: Array<Script> = [];
@@ -51,12 +49,16 @@ export class Imba
 	}
 
 
-	public getScript(name: string): Script|undefined
+	public getScript(name: string, need: boolean = false): Script|undefined
 	{
 		for (let i = 0; i < this._scripts.length; i++) {
 			if (this._scripts[i].name === name) {
 				return this._scripts[i];
 			}
+		}
+
+		if (need) {
+			throw new Error(`Script ${name} is not defined.`);
 		}
 	}
 
@@ -69,7 +71,7 @@ export class Imba
 
 	public script(name: string, definition: ScriptDefinitionCallback): Script
 	{
-		const script = new Script(name, definition);
+		const script = new Script(this, name, definition);
 		this._scripts.push(script);
 
 		return script;

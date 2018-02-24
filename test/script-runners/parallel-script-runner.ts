@@ -1,11 +1,13 @@
 import {ParallelScriptRunner} from '../../src/script-runners';
 import {MockRunnerFactory} from '../../src/runners';
 import {MockOutput} from '../../src/outputs';
+import {Imba} from '../../src/imba';
 import {Project} from '../../src/project';
 import {Script} from '../../src/script';
 import {expect} from 'chai';
 
 
+let imba: Imba;
 let runnerFactory: MockRunnerFactory;
 let scriptRunner: ParallelScriptRunner;
 
@@ -13,6 +15,7 @@ let scriptRunner: ParallelScriptRunner;
 describe('#ScriptRunners/ParallelScriptRunner', () => {
 
 	beforeEach(() => {
+		imba = new Imba;
 		runnerFactory = new MockRunnerFactory;
 		scriptRunner = new ParallelScriptRunner(runnerFactory, new MockOutput);
 	});
@@ -27,7 +30,7 @@ describe('#ScriptRunners/ParallelScriptRunner', () => {
 			const projectA = new Project('project:a', '');
 			const projectB = new Project('project:b', '');
 
-			const script = new Script('script:a', (storage) => {
+			const script = new Script(imba, 'script:a', (storage) => {
 				storage.cmd('sleep');
 			});
 
