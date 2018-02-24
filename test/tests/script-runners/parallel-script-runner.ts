@@ -1,9 +1,9 @@
-import {ParallelScriptRunner} from '../../src/script-runners';
-import {MockRunnerFactory} from '../../src/runners';
-import {MockOutput} from '../../src/outputs';
-import {Imba} from '../../src/imba';
-import {Project} from '../../src/project';
-import {Script} from '../../src/script';
+import {ParallelScriptRunner} from '../../../src/script-runners/index';
+import {MockRunnerFactory} from '../../../src/runners/index';
+import {MockOutput} from '../../../src/outputs/index';
+import {Imba} from '../../../src/imba';
+import {Project} from '../../../src/project';
+import {Script} from '../../../src/script';
 import {expect} from 'chai';
 
 

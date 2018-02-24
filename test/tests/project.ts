@@ -1,4 +1,4 @@
-import {Project} from '../src/project';
+import {Project} from '../../src/project';
 import {expect} from 'chai';
 
 

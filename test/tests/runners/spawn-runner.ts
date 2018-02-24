@@ -1,4 +1,4 @@
-import {SpawnRunner} from '../../src/runners';
+import {SpawnRunner} from '../../../src/runners/index';
 import {expect} from 'chai';
 
 

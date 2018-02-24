@@ -1,6 +1,6 @@
-import {MockFileReader} from '../src/file-readers';
-import {configFileLookup, loadImbaFromFile} from '../src/configuration';
-import {Imba} from '../src/imba';
+import {MockFileReader} from '../../src/file-readers/index';
+import {configFileLookup, loadImbaFromFile} from '../../src/configuration';
+import {Imba} from '../../src/imba';
 import {expect} from 'chai';
 
 

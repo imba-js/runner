@@ -1,4 +1,4 @@
-import {MockRunnerFactory, MockRunner} from '../../src/runners';
+import {MockRunnerFactory, MockRunner} from '../../../src/runners/index';
 import {expect} from 'chai';
 
 

@@ -1,4 +1,4 @@
-import {MockOutput} from '../../src/outputs';
+import {MockOutput} from '../../../src/outputs/index';
 import {expect} from 'chai';
 
 

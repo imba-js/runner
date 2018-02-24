@@ -1,12 +1,12 @@
-import {Script, ScriptMode} from '../src/script';
-import {Input} from '../src/input';
-import {EnvironmentVariable} from '../src/environment-variable';
-import {Imba} from '../src/imba';
-import {Project} from '../src/project';
-import {CommandsStorage} from '../src/commands-storage';
-import {CmdCommand} from '../src/commands';
-import {MockRunnerFactory} from '../src/runners';
-import {RunContext} from '../src/run-context';
+import {Script, ScriptMode} from '../../src/script';
+import {Input} from '../../src/input';
+import {EnvironmentVariable} from '../../src/environment-variable';
+import {Imba} from '../../src/imba';
+import {Project} from '../../src/project';
+import {CommandsStorage} from '../../src/commands-storage';
+import {CmdCommand} from '../../src/commands/index';
+import {MockRunnerFactory} from '../../src/runners/index';
+import {RunContext} from '../../src/run-context';
 import {expect} from 'chai';
 
 

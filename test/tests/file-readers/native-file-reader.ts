@@ -1,4 +1,4 @@
-import {NativeFileReader} from '../../src/file-readers';
+import {NativeFileReader} from '../../../src/file-readers/index';
 import {expect} from 'chai';
 import * as path from 'path';
 

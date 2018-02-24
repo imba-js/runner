@@ -1,4 +1,4 @@
-import {createScriptEnvironment, EnvironmentVariable} from '../src/environment-variable';
+import {createScriptEnvironment, EnvironmentVariable} from '../../src/environment-variable';
 import {expect} from 'chai';
 
 

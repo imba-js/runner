@@ -1,6 +1,6 @@
-import {CommandsStorage} from '../src/commands-storage';
-import {CmdCommand} from '../src/commands';
-import {MockRunnerFactory} from '../src/runners';
+import {CommandsStorage} from '../../src/commands-storage';
+import {CmdCommand} from '../../src/commands';
+import {MockRunnerFactory} from '../../src/runners';
 import {expect} from 'chai';
 
 
