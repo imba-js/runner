@@ -1,4 +1,4 @@
-import {Imba, ScriptMode} from '../src';
+import {project, script, ScriptMode} from '../lib';
 import * as path from 'path';
 
 
@@ -10,16 +10,13 @@ function sleep(ms): Promise<void>
 }
 
 
-const imba = new Imba;
+project('root', __dirname);
+project('js:a', path.resolve(__dirname, 'js_a'));
+project('js:b', path.resolve(__dirname, 'js_b'));
+project('php:a', path.resolve(__dirname, 'php_a'));
 
 
-imba.project('root', __dirname);
-imba.project('js:a', path.resolve(__dirname, 'js_a'));
-imba.project('js:b', path.resolve(__dirname, 'js_b'));
-imba.project('php:a', path.resolve(__dirname, 'php_a'));
-
-
-imba.script('project:install', (script) => {
+script('project:install', (script) => {
 	script.cmd('env');
 })
 	.mode(ScriptMode.Series)
@@ -29,7 +26,7 @@ imba.script('project:install', (script) => {
 ;
 
 
-imba.script('deps:install', (script, ctx) => {
+script('deps:install', (script, ctx) => {
 	if (ctx.project.name === 'php:a') {
 		script.cmd('echo "composer install"');
 	} else {
@@ -46,7 +43,7 @@ imba.script('deps:install', (script, ctx) => {
 ;
 
 
-imba.script('run:dev', (script) => {
+script('run:dev', (script) => {
 	script
 		.cmd('env')
 		.cmd('date')
@@ -61,7 +58,7 @@ imba.script('run:dev', (script) => {
 ;
 
 
-imba.script('run:prod', (script) => {
+script('run:prod', (script) => {
 	script
 		.cmd('date')
 		.cmd('uptime')
@@ -74,14 +71,14 @@ imba.script('run:prod', (script) => {
 ;
 
 
-imba.script('work', (script) => {
+script('work', (script) => {
 	script.cmd('echo "Working hard..."');
 })
 	.mode(ScriptMode.Series)
 ;
 
 
-imba.script('sleep:prepare', (script) => {
+script('sleep:prepare', (script) => {
 	script.cmd('sleep 1');
 })
 	.before((script, ctx) => {
@@ -94,7 +91,7 @@ imba.script('sleep:prepare', (script) => {
 ;
 
 
-imba.script('sleep', (script) => {
+script('sleep', (script) => {
 	script.callback('sleep callback', async () => {
 		await sleep(5000);
 		return 0;
@@ -110,6 +107,3 @@ imba.script('sleep', (script) => {
 	})
 	.dependencies(['sleep:prepare'])
 ;
-
-
-export = imba;

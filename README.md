@@ -12,13 +12,12 @@ had sex and this was their child.
 **`.imba-runner.js`:**
 
 ```javascript
-const Imba = require('@imba/runner').Imba;
-const imba = new Imba;
+const Imba = require('@imba/runner');
 
-imba.project('api', './modules/api');
-imba.project('front', './modules/front');
+Imba.project('api', './modules/api');
+Imba.project('front', './modules/front');
 
-imba.script('deps:install', function(script, ctx) {
+Imba.script('deps:install', function(script, ctx) {
     if (ctx.project.name === 'api') {
         script.cmd('composer install');
     } else {
@@ -26,19 +25,17 @@ imba.script('deps:install', function(script, ctx) {
     }
 });
 
-imba.script('build', function(script) {
+Imba.script('build', function(script) {
     script.cmd('yarn run build');
 }).only(['front']);
 
-imba.script('up', function(script) {
+Imba.script('up', function(script) {
     script.cmd('docker-compose up');
 });
 
-imba.script('down', function(script) {
+Imba.script('down', function(script) {
     script.cmd('docker-compose down');
 });
-
-module.exports = imba;
 ```
 
 Now you can run for example the `build` script like this:
@@ -72,8 +69,8 @@ Next create new `.imba-runner.js` file in the root of your monolithic repository
 This is just a simple definition with all of your projects and their paths.
 
 ```javascript
-imba.project('a', './a');
-imba.project('b', './b');
+Imba.project('a', './a');
+Imba.project('b', './b');
 ```
 
 ## Scripts
@@ -84,13 +81,13 @@ determine which command you actually want to run.
 You can also say to run your script only for some projects or to exclude some others.
 
 ```javascript
-imba.script('a', function(script) {
+Imba.script('a', function(script) {
     script.cmd('echo "Run first command in script a"');
     script.cmd('echo "Run second command in script a"');
     script.cmd('echo "Run third command in script a"');
 });
 
-imba.script('b', function(script, ctx) {
+Imba.script('b', function(script, ctx) {
     if (ctx.project.name === 'a') {
         script.cmd('echo "Run script b in project a"');
     } else {
@@ -98,11 +95,11 @@ imba.script('b', function(script, ctx) {
     }
 });
 
-imba.script('c', function(script) {
+Imba.script('c', function(script) {
     script.cmd('echo "Run script c only in project a"');
 }).only(['a']);
 
-imba.script('d', function(script) {
+Imba.script('d', function(script) {
     script.cmd('echo "Run script d in all projects, except for a"');
 }).except(['a']);
 ```
@@ -110,7 +107,7 @@ imba.script('d', function(script) {
 ## Use JS callbacks instead of CLI commands
 
 ```javascript
-imba.script('a', function(script) {
+Imba.script('a', function(script) {
     script.callback('hello', function(ctx, stdout, stderr) {
         stdout.emit('hello world');
         stderr.emit(' from hell');
@@ -126,7 +123,7 @@ Just like in for example`.gitlab-ci.yml` file or in `deployer`, you can define s
 the main scripts.
 
 ```javascript
-imba.script('a', function(script) {
+Imba.script('a', function(script) {
     script.cmd('echo "Running script a"');
 }).before(function(script) {
     script.cmd('echo "Running before script for script a"');
@@ -142,7 +139,7 @@ imba.script('a', function(script) {
 Imba-runner automatically adds some environment variables to your scripts.
 
 ```javascript
-imba.script('a', function(script) {
+Imba.script('a', function(script) {
     script.cmd('echo ${IMBA_SCRIPT_NAME}');        // output: a
     script.cmd('echo ${IMBA_SCRIPT_TYPE_NAME}');   // output: before_script
     script.cmd('echo ${IMBA_PROJECT_NAME}');       // output: currently running project
@@ -161,7 +158,7 @@ imba.script('a', function(script) {
 New custom environment variables could be also added.
 
 ```javascript
-imba.script('deploy', function(script) {
+Imba.script('deploy', function(script) {
     script.cmd('echo "deploying ${STAGE} to ${URL}"');
 }).env('URL', 'example.com')
     .env('STAGE', 'beta');
@@ -173,7 +170,7 @@ exception to this is `PATH` variable which is passed automatically when availabl
 If you want to pass some other environment variables into your scripts, you need to mention them specifically:
 
 ```javascript
-imba.script('deploy', function(script) {
+Imba.script('deploy', function(script) {
     script.cmd('echo "deploying ${STAGE} to ${URL}"');
 }).env('HOME', process.env.HOME);
 ```
@@ -187,7 +184,7 @@ Luckily there is a `inputs` configuration for scripts which are using the `stdin
 from your keyboard.
 
 ```javascript
-imba.script('git:configure', function(script) {
+Imba.script('git:configure', function(script) {
     script.cmd('git config --global user.name ${USER_NAME}');
     script.cmd('git config --global user.email ${USER_EMAIL}');
 }).input('USER_NAME', 'Your name?', {defaultValue: 'John Doe'})
@@ -204,11 +201,11 @@ As you can see there are also options to set default value or mark input as requ
 Scripts can depend on other scripts in which case the dependencies will be started automatically first.
 
 ```javascript
-imba.script('build', function(script) {
+Imba.script('build', function(script) {
     script.cmd('yarn run compile');
 });
 
-imba.script('deploy', function(script) {
+Imba.script('deploy', function(script) {
     script.cmd('echo "deploying..."');
 }).dependencies(['build']);
 ```
@@ -218,17 +215,15 @@ imba.script('deploy', function(script) {
 By default each script run for each project in parallel. This can be changed to series mode if needed.
 
 ```javascript
-const ScriptMode = require('@imba/runner').ScriptMode;
+Imba.project('a', './a');
+Imba.project('b', './b');
 
-imba.project('a', './a');
-imba.project('b', './b');
-
-imba.script('a', function(script) {
+Imba.script('a', function(script) {
     script.cmd('sleep 1');
     script.cmd('echo "Running 1st script for project \'${IMBA_PROJECT_NAME}\'"');
     script.cmd('sleep 1');
     script.cmd('echo "Running 2nd script for project \'${IMBA_PROJECT_NAME}\'"');
-}).mode(ScriptMode.Series);
+}).mode(Imba.ScriptMode.Series);
 ```
 
 Now the output for the script `a` above should be something like this:
@@ -264,15 +259,13 @@ Also in that example, the first way should take about 4 seconds to finish and th
 Config file can be also written in `.ts` file. Just rename it and profit:
 
 ```typescript
-import {Imba, ScriptMode} from '@imba/runner';
+import {project, script, ScriptMode} from '@imba/runner';
 
-const imba = new Imba;
+project('a', './a');
 
-imba.script('a', (script) => {
+script('a', (script) => {
     script.cmd('...');
 }).mode(ScriptMode.Series);
-
-export = imba;
 ```
 
 ## CLI: running scripts

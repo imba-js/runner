@@ -1,5 +1,6 @@
 import {FileReader} from './file-readers';
 import {Imba} from './imba';
+import {imba} from './instance';
 import * as path from 'path';
 
 
@@ -32,11 +33,6 @@ export function configFileLookup(fileReader: FileReader, file: string): string|u
 
 export function loadImbaFromFile(fileReader: FileReader, file: string): Imba
 {
-	const exported = <Imba>fileReader.require(file);
-
-	if (!exported.__isImba) {
-		throw new Error(`${file} must export instance of Imba class.`);
-	}
-
-	return exported;
+	fileReader.require(file);
+	return imba;
 }
