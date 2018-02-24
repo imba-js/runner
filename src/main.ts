@@ -74,6 +74,10 @@ switch (argv._[0]) {
 
 		const script = imba.getScript(argv._[1]);
 
+		if (script.isHidden()) {
+			showError(`Script ${argv._[1]} is hidden and can not be run from CLI directly.`);
+		}
+
 		runner.run(script).then((returnCode) => {
 			process.exit(returnCode);
 		});

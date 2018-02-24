@@ -16,6 +16,10 @@ project('js:b', path.resolve(__dirname, 'js_b'));
 project('php:a', path.resolve(__dirname, 'php_a'));
 
 
+script('hidden', () => {})
+	.hide();
+
+
 script('project:install', (script) => {
 	script.cmd('env');
 })

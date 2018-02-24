@@ -31,6 +31,10 @@ export class InfoPrinter extends Printer
 		this.printSeparator();
 
 		_.forEach(imba.getScripts(), (script) => {
+			if (script.isHidden()) {
+				return;
+			}
+
 			this.output.log(chalk.green(script.name));
 			this.output.log(`  ${chalk.magenta('Mode:')} ${script.getMode()}`);
 

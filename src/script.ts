@@ -41,6 +41,8 @@ export class Script
 
 	private _dependencies: Array<string> = [];
 
+	private _hidden: boolean = false;
+
 
 	constructor(name: string, definition: ScriptDefinitionCallback)
 	{
@@ -231,6 +233,19 @@ export class Script
 		this._definition(storage, ctx);
 
 		return storage;
+	}
+
+
+	public hide(): Script
+	{
+		this._hidden = true;
+		return this;
+	}
+
+
+	public isHidden(): boolean
+	{
+		return this._hidden;
 	}
 
 

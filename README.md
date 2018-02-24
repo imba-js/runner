@@ -270,6 +270,16 @@ Whereas for parallel mode it should look like that:
 
 Also in that example, the first way should take about 4 seconds to finish and the second about 2 seconds.
 
+## Hidden scripts
+
+Any script can be marked as hidden. Such a scripts can not be run from CLI, but they can still be referenced from 
+withing the configuration.
+
+```javascript
+Imba.script('hidden-script', function() {})
+    .hide();
+```
+
 ## With Typescript
 
 Config file can be also written in `.ts` file. Just rename it and profit:
