@@ -82,7 +82,7 @@ export class InfoPrinter extends Printer
 
 					_.forEach(script.getBeforeScripts(), (beforeScript: Script) => {
 						if (beforeScript.isHidden()) {
-							_.forEach(beforeScript.createCommands(runnerFactory, runContext).getCommands(), (command: Command) => {
+							_.forEach(beforeScript.createScriptContext(runnerFactory, runContext).getCommands(), (command: Command) => {
 								this.output.log(`        - Command: ${command.name}`);
 							});
 
@@ -97,7 +97,7 @@ export class InfoPrinter extends Printer
 
 					_.forEach(script.getAfterScripts(), (afterScript: Script) => {
 						if (afterScript.isHidden()) {
-							_.forEach(afterScript.createCommands(runnerFactory, runContext).getCommands(), (command: Command) => {
+							_.forEach(afterScript.createScriptContext(runnerFactory, runContext).getCommands(), (command: Command) => {
 								this.output.log(`        - Command: ${command.name}`);
 							});
 
@@ -109,7 +109,7 @@ export class InfoPrinter extends Printer
 
 				this.output.log(`      ${chalk.magenta('script')}`);
 
-				_.forEach(script.createCommands(runnerFactory, runContext).getCommands(), (command: Command) => {
+				_.forEach(script.createScriptContext(runnerFactory, runContext).getCommands(), (command: Command) => {
 					this.output.log(`        - Command: ${command.name}`);
 				});
 			});

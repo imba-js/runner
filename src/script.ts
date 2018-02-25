@@ -1,4 +1,4 @@
-import {CommandsStorage} from './commands-storage';
+import {ScriptContext} from './script-context';
 import {Input, InputOptions, InputsList} from './input';
 import {EnvironmentVariable} from './environment-variable';
 import {RunContext} from './run-context';
@@ -8,7 +8,7 @@ import {Imba} from './imba';
 import * as _ from 'lodash';
 
 
-export declare type ScriptDefinitionCallback = (storage: CommandsStorage, context: RunContext) => void;
+export declare type ScriptDefinitionCallback = (storage: ScriptContext, context: RunContext) => void;
 
 export enum ScriptMode
 {
@@ -54,6 +54,15 @@ export class Script
 		this.name = name;
 		this._definition = definition;
 		this._parent = parent;
+	}
+
+
+	public createScriptContext(runnerFactory: RunnerFactory, ctx: RunContext): ScriptContext
+	{
+		const storage = new ScriptContext(runnerFactory);
+		this._definition(storage, ctx);
+
+		return storage;
 	}
 
 
@@ -288,15 +297,6 @@ export class Script
 		}
 
 		return result;
-	}
-
-
-	public createCommands(runnerFactory: RunnerFactory, ctx: RunContext): CommandsStorage
-	{
-		const storage = new CommandsStorage(runnerFactory);
-		this._definition(storage, ctx);
-
-		return storage;
 	}
 
 

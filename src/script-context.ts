@@ -2,7 +2,7 @@ import {Command, CmdCommand, CallbackCommand, CallbackCommandCallback} from './c
 import {RunnerFactory} from './runners';
 
 
-export class CommandsStorage
+export class ScriptContext
 {
 
 
@@ -17,7 +17,7 @@ export class CommandsStorage
 	}
 
 
-	public cmd(command: string): CommandsStorage
+	public cmd(command: string): ScriptContext
 	{
 		const cmd = new CmdCommand(this._runnerFactory, command);
 		this._commands.push(cmd);
@@ -26,7 +26,7 @@ export class CommandsStorage
 	}
 
 
-	public callback(name: string, cb: CallbackCommandCallback): CommandsStorage
+	public callback(name: string, cb: CallbackCommandCallback): ScriptContext
 	{
 		const cmd = new CallbackCommand(name, cb);
 		this._commands.push(cmd);

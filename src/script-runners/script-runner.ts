@@ -1,7 +1,7 @@
 import {RunnerFactory} from '../runners';
 import {Output} from '../outputs';
 import {Command} from '../commands';
-import {CommandsStorage} from '../commands-storage';
+import {ScriptContext} from '../script-context';
 import {Project} from '../project';
 import {Script} from '../script';
 import {EventEmitter} from '../event-emitter';
@@ -91,7 +91,7 @@ export abstract class ScriptRunner
 			IMBA_PROJECT_NAME: projectName,
 		}), inputAnswers);
 
-		const returnCode = await this.runScriptStack(project, script.createCommands(this.runnerFactory, ctx), ctx);
+		const returnCode = await this.runScriptStack(project, script.createScriptContext(this.runnerFactory, ctx), ctx);
 
 		this.onProjectEnd.emit({
 			project: project,
@@ -102,9 +102,9 @@ export abstract class ScriptRunner
 	}
 
 
-	private async runScriptStack(project: Project, commands: CommandsStorage, ctx: RunContext): Promise<number>
+	private async runScriptStack(project: Project, scriptCtx: ScriptContext, ctx: RunContext): Promise<number>
 	{
-		const _commands = commands.getCommands();
+		const _commands = scriptCtx.getCommands();
 		let returnCode = 0;
 
 		for (let i = 0; i < _commands.length; i++) {
