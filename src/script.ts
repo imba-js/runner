@@ -1,5 +1,5 @@
 import {CommandsStorage} from './commands-storage';
-import {Input, InputOptions} from './input';
+import {Input, InputOptions, InputsList} from './input';
 import {EnvironmentVariable} from './environment-variable';
 import {RunContext} from './run-context';
 import {RunnerFactory} from './runners';
@@ -9,14 +9,6 @@ import * as _ from 'lodash';
 
 
 export declare type ScriptDefinitionCallback = (storage: CommandsStorage, context: RunContext) => void;
-
-export declare interface RecursiveInputsList
-{
-	main: Array<Input>,
-	dependencies: {
-		[scriptName: string]: Array<Input>,
-	},
-}
 
 export enum ScriptMode
 {
@@ -213,22 +205,21 @@ export class Script
 	}
 
 
-	public getAllRecursiveInputs(): RecursiveInputsList
+	public getAllRecursiveInputs(): InputsList
 	{
 		const before = this.getBeforeScripts(true);
 		const after = this.getAfterScripts(true);
 
-		const inputs: RecursiveInputsList = {
-			main: this.getInputs(),
-			dependencies: {},
-		};
+		const inputs: InputsList = {};
+
+		inputs[this.name] = this.getInputs();
 
 		for (let i = 0; i < before.length; i++) {
-			inputs.dependencies[before[i].name] = before[i].getInputs();
+			inputs[before[i].name] = before[i].getInputs();
 		}
 
 		for (let i = 0; i < after.length; i++) {
-			inputs.dependencies[after[i].name] = after[i].getInputs();
+			inputs[after[i].name] = after[i].getInputs();
 		}
 
 		return inputs;

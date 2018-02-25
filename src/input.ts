@@ -1,7 +1,22 @@
+import {EnvList} from './environment-variable';
+
+
 export declare interface InputOptions
 {
 	defaultValue?: string,
 	required?: boolean,
+}
+
+
+export declare interface InputsList
+{
+	[scriptName: string]: Array<Input>,
+}
+
+
+export declare interface AnswersList
+{
+	[scriptName: string]: EnvList,
 }
 
 

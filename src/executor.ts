@@ -2,21 +2,13 @@ import {ParallelScriptPrinter, ScriptPrinter, SeriesScriptPrinter, ProjectComman
 import {ParallelScriptRunner, ScriptRunner, SeriesScriptRunner} from './script-runners';
 import {RunnerFactory} from './runners';
 import {Output} from './outputs';
+import {InputsList, AnswersList} from './input';
 import {Imba} from './imba';
-import {Script, ScriptMode, RecursiveInputsList} from './script';
+import {Script, ScriptMode} from './script';
 import {Project} from './project';
 import {Questions} from './questions';
 import {createScriptEnvironment, EnvList} from './environment-variable';
 import chalk from 'chalk';
-
-
-declare interface ScriptWithInputAnswers
-{
-	main: EnvList,
-	dependencies: {
-		[scriptName: string]: EnvList,
-	},
-}
 
 
 export class Executor
@@ -88,12 +80,12 @@ export class Executor
 	}
 
 
-	private async runScriptsList(scripts: Array<Script>, answers: ScriptWithInputAnswers): Promise<number>
+	private async runScriptsList(scripts: Array<Script>, answers: AnswersList): Promise<number>
 	{
 		let returnCode = 0;
 
 		for (let i = 0; i < scripts.length; i++) {
-			returnCode = await this.runScript(scripts[i], answers.dependencies[scripts[i].name]);
+			returnCode = await this.runScript(scripts[i], answers[scripts[i].name]);
 
 			this.output.log('');
 
@@ -127,19 +119,14 @@ export class Executor
 	}
 
 
-	private async getInputAnswers(inputs: RecursiveInputsList): Promise<ScriptWithInputAnswers>
+	private async getInputAnswers(inputs: InputsList): Promise<AnswersList>
 	{
 		const questions = new Questions(this.output);
-		const result: ScriptWithInputAnswers = {
-			main: {},
-			dependencies: {},
-		};
+		const result: AnswersList = {};
 
-		result.main = await questions.askQuestions(inputs.main);
-
-		for (let name in inputs.dependencies) {
-			if (inputs.dependencies.hasOwnProperty(name)) {
-				result.dependencies[name] = await questions.askQuestions(inputs.dependencies[name]);
+		for (let name in inputs) {
+			if (inputs.hasOwnProperty(name)) {
+				result[name] = await questions.askQuestions(inputs[name]);
 			}
 		}
 
