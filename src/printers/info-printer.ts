@@ -1,7 +1,7 @@
 import {Printer} from './printer';
 import {Imba} from '../imba';
 import {MockRunnerFactory} from '../runners';
-import {RunContext} from '../run-context';
+import {RunContext, RunState} from '../run-context';
 import {Script} from '../script';
 import {Project} from '../project';
 import {EnvironmentVariable} from '../environment-variable';
@@ -75,7 +75,7 @@ export class InfoPrinter extends Printer
 			_.forEach(script.getAllowedProjects(), (project: Project) => {
 				this.output.log(`    ${chalk.green(project.name)}`);
 
-				const runContext = new RunContext(project);
+				const runContext = new RunContext(RunState.PrintInfo, project);
 
 				if (script.hasBeforeScripts()) {
 					this.output.log(`      ${chalk.magenta('before_script')}`);

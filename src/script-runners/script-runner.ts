@@ -5,7 +5,7 @@ import {CommandsStorage} from '../commands-storage';
 import {Project} from '../project';
 import {Script} from '../script';
 import {EventEmitter} from '../event-emitter';
-import {RunContext} from '../run-context';
+import {RunContext, RunState} from '../run-context';
 import {createScriptEnvironment, EnvList} from '../environment-variable';
 
 
@@ -85,7 +85,7 @@ export abstract class ScriptRunner
 			script: script,
 		});
 
-		const ctx = new RunContext(project, createScriptEnvironment(scriptEnvironment, inputAnswers, {
+		const ctx = new RunContext(RunState.Run, project, createScriptEnvironment(scriptEnvironment, inputAnswers, {
 			IMBA_SCRIPT_NAME: scriptName,
 			IMBA_SCRIPT_TYPE_NAME: 'script',
 			IMBA_PROJECT_NAME: projectName,
