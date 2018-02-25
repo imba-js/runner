@@ -120,6 +120,13 @@ Imba.script('d', function(script) {
 }).except(['a']);
 ```
 
+## Describe your scripts
+
+```javascript
+Imba.script('a', function() {})
+    .description('Awesome a script');
+```
+
 ## Use JS callbacks instead of CLI commands
 
 ```javascript

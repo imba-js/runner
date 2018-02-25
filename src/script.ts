@@ -53,6 +53,8 @@ export class Script
 
 	private _hidden: boolean = false;
 
+	private _description: string|undefined;
+
 
 	constructor(imba: Imba, name: string, definition: ScriptDefinitionCallback, parent?: Script)
 	{
@@ -60,6 +62,24 @@ export class Script
 		this.name = name;
 		this._definition = definition;
 		this._parent = parent;
+	}
+
+
+	public hasDescription(): boolean
+	{
+		return typeof this._description !== 'undefined';
+	}
+
+
+	public getDescription(): string|undefined
+	{
+		return this._description;
+	}
+
+
+	public description(description: string): void
+	{
+		this._description = description;
 	}
 
 
