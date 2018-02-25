@@ -330,6 +330,12 @@ $ imba run deploy
 $ imba info
 ```
 
+**Display all available scripts:**
+
+```bash
+$ imba list
+```
+
 **Set different config file:**
 
 ```bash

@@ -17,7 +17,8 @@ project('php:a', path.resolve(__dirname, 'php_a'));
 
 
 script('hidden', () => {})
-	.hide();
+	.hide()
+	.describe('Hidden script');
 
 
 script('project:install', (script) => {
@@ -27,6 +28,7 @@ script('project:install', (script) => {
 	.only(['root'])
 	.input('USER_NAME', 'Please, enter your user name', {defaultValue: 'John Doe'})
 	.input('USER_EMAIL', 'Please, enter your user email', {required: true})
+	.describe('Automatic project installer')
 ;
 
 
@@ -44,6 +46,7 @@ script('deps:install', (script, ctx) => {
 		script.cmd(`echo "Finished deps:install"`);
 	})
 	.mode(ScriptMode.Series)
+	.describe('Install all project dependencies')
 ;
 
 
@@ -59,6 +62,7 @@ script('run:dev', (script) => {
 	.except(['root', 'js:b'])
 	.env('HOME', process.env.HOME)
 	.env('ENVIRONMENT', 'dev')
+	.describe('Start development version')
 ;
 
 
@@ -72,6 +76,7 @@ script('run:prod', (script) => {
 	.mode(ScriptMode.Series)
 	.only(['js:a'])
 	.env('ENVIRONMENT', 'prod')
+	.describe('Start production version')
 ;
 
 

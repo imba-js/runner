@@ -77,7 +77,7 @@ export class Script
 	}
 
 
-	public description(description: string): void
+	public describe(description: string): void
 	{
 		this._description = description;
 	}

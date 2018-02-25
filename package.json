@@ -15,6 +15,7 @@
 	"dependencies": {
 		"chalk": "^2.3.0",
 		"lodash": "^4.17.4",
+		"pad": "^2.0.3",
 		"term-size": "^1.2.0",
 		"ts-node": "^4.1.0",
 		"typescript": "^2.7.2",
@@ -33,7 +34,6 @@
 		"build": "tsc",
 		"watch": "tsc --watch",
 		"test": "mocha -r ts-node/register test/tests/**/*.ts",
-
 		"prepublish": "yarn run build",
 		"pretest": "yarn run build"
 	}

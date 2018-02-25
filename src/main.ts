@@ -2,7 +2,7 @@
 
 import {configFileLookup, loadImbaFromFile} from './configuration';
 import {SpawnRunnerFactory} from './runners';
-import {InfoPrinter} from './printers';
+import {InfoPrinter, ListPrinter} from './printers';
 import {NativeOutput} from './outputs';
 import {NativeFileReader} from './file-readers';
 import {Executor} from './executor';
@@ -15,6 +15,7 @@ const argv = yargs
 	.usage('Usage: $0 [options] <command>')
 	.option('config', {alias: 'c', default: `${process.cwd()}/.imba-runner`})
 	.command('info', 'Show information about all registered projects and scripts')
+	.command('list', 'Print all available scripts')
 	.command('run', 'Run defined script')
 	.command('exec', 'Execute given command in specific project')
 	.demandCommand()
@@ -63,6 +64,7 @@ const runner = new Executor(runnerFactory, output, imba);
 
 switch (argv._[0]) {
 	case 'info': (new InfoPrinter(output)).printInfo(configFile, imba); break;
+	case 'list': (new ListPrinter(output)).printList(imba); break;
 	case 'run':
 		if (_.isUndefined(argv._[1])) {
 			showError(`Missing run script.`);
