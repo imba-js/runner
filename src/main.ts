@@ -59,7 +59,9 @@ if (path.extname(configFile) === '.ts') {
 
 
 const imba = loadImbaFromFile(reader, configFile);
-const runner = new Executor(runnerFactory, output, imba);
+const executor = new Executor(runnerFactory, output, imba);
+
+imba.loadScriptConfigurations();
 
 
 switch (argv._[0]) {
@@ -80,7 +82,7 @@ switch (argv._[0]) {
 			showError(`Script ${argv._[1]} is hidden and can not be run from CLI directly.`);
 		}
 
-		runner.run(script).then((returnCode) => {
+		executor.run(script).then((returnCode) => {
 			process.exit(returnCode);
 		});
 
@@ -97,7 +99,7 @@ switch (argv._[0]) {
 		const project = imba.getProject(argv._[1]);
 		const command = argv._.slice(2);
 
-		runner.runProjectCommand(project, command.join(' ')).then((returnCode) => {
+		executor.runProjectCommand(project, command.join(' ')).then((returnCode) => {
 			process.exit(returnCode);
 		});
 

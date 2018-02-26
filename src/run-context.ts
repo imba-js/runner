@@ -4,6 +4,7 @@ import {EnvList} from './environment-variable';
 
 export enum RunState
 {
+	Load,
 	PrintInfo,
 	Run,
 }

@@ -1,8 +1,8 @@
 import {ScriptContext} from './script-context';
 import {Input, InputOptions, InputsList} from './input';
 import {EnvironmentVariable} from './environment-variable';
-import {RunContext} from './run-context';
-import {RunnerFactory} from './runners';
+import {RunContext, RunState} from './run-context';
+import {RunnerFactory, MockRunnerFactory} from './runners';
 import {Project} from './project';
 import {Imba} from './imba';
 import * as _ from 'lodash';
@@ -22,6 +22,8 @@ export class Script
 
 
 	public readonly name: string;
+
+	private _locked: boolean = false;
 
 	private _imba: Imba;
 
@@ -57,9 +59,16 @@ export class Script
 	}
 
 
+	public loadConfiguration(): void
+	{
+		this.createScriptContext(new MockRunnerFactory, new RunContext(RunState.Load, Project.createSystemProject()));
+		this._locked = true;
+	}
+
+
 	public createScriptContext(runnerFactory: RunnerFactory, ctx: RunContext): ScriptContext
 	{
-		const storage = new ScriptContext(runnerFactory);
+		const storage = new ScriptContext(runnerFactory, this);
 		this._definition(storage, ctx);
 
 		return storage;
@@ -80,6 +89,10 @@ export class Script
 
 	public describe(description: string): void
 	{
+		if (this._locked) {
+			return;
+		}
+
 		this._description = description;
 	}
 
@@ -96,6 +109,10 @@ export class Script
 
 	public mode(mode: ScriptMode): Script
 	{
+		if (this._locked) {
+			return this;
+		}
+
 		this._mode = mode;
 		return this;
 	}
@@ -103,6 +120,10 @@ export class Script
 
 	public only(only: Array<string>): Script
 	{
+		if (this._locked) {
+			return this;
+		}
+
 		this._only = only;
 		return this;
 	}
@@ -110,6 +131,10 @@ export class Script
 
 	public except(except: Array<string>): Script
 	{
+		if (this._locked) {
+			return this;
+		}
+
 		this._except = except;
 		return this;
 	}
@@ -133,6 +158,10 @@ export class Script
 
 	public before(scriptOrDefinition: ScriptDefinitionCallback|string|Array<string>): Script
 	{
+		if (this._locked) {
+			return this;
+		}
+
 		if (_.isArray(scriptOrDefinition)) {
 			this._before = [];
 
@@ -175,8 +204,12 @@ export class Script
 	}
 
 
-	public after(scriptOrDefinition: ScriptDefinitionCallback|string): Script
+	public after(scriptOrDefinition: ScriptDefinitionCallback|string|Array<string>): Script
 	{
+		if (this._locked) {
+			return this;
+		}
+
 		if (_.isArray(scriptOrDefinition)) {
 			this._after = [];
 
@@ -237,6 +270,10 @@ export class Script
 
 	public input(name: string, question: string, options: InputOptions = {}): Script
 	{
+		if (this._locked) {
+			return this;
+		}
+
 		const input = new Input(name, question);
 
 		if (!_.isUndefined(options.defaultValue)) {
@@ -267,6 +304,10 @@ export class Script
 
 	public env(name: string, value: string): Script
 	{
+		if (this._locked) {
+			return this;
+		}
+
 		const env = new EnvironmentVariable(name, value);
 		this._env.push(env);
 
@@ -302,6 +343,10 @@ export class Script
 
 	public hide(): Script
 	{
+		if (this._locked) {
+			return this;
+		}
+
 		this._hidden = true;
 		return this;
 	}

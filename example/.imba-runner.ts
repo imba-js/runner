@@ -16,103 +16,104 @@ project('js:b', path.resolve(__dirname, 'js_b'));
 project('php:a', path.resolve(__dirname, 'php_a'));
 
 
-script('hidden', () => {})
-	.hide()
-	.describe('Hidden script');
+script('hidden', (script) => {
+	script.hide();
+	script.describe('Hidden script');
+});
 
 
 script('project:install', (script) => {
+	script.mode(ScriptMode.Series);
+	script.only(['root']);
+	script.input('USER_NAME', 'Please, enter your user name', {defaultValue: 'John Doe'});
+	script.input('USER_EMAIL', 'Please, enter your user email', {required: true});
+	script.describe('Automatic project installer');
+
 	script.cmd('env');
-})
-	.mode(ScriptMode.Series)
-	.only(['root'])
-	.input('USER_NAME', 'Please, enter your user name', {defaultValue: 'John Doe'})
-	.input('USER_EMAIL', 'Please, enter your user email', {required: true})
-	.describe('Automatic project installer')
-;
+});
 
 
 script('deps:install', (script, ctx) => {
+	script.mode(ScriptMode.Series);
+	script.describe('Install all project dependencies');
+	script.before((before) => {
+		before.cmd('echo "Starting to install dependencies"');
+	});
+	script.after((after) => {
+		after.cmd(`echo "Finished deps:install"`);
+	});
+
 	if (ctx.project.name === 'php:a') {
 		script.cmd('echo "composer install"');
 	} else {
 		script.cmd('echo "yarn install"');
 	}
-})
-	.before((script) => {
-		script.cmd('echo "Starting to install dependencies"');
-	})
-	.after((script) => {
-		script.cmd(`echo "Finished deps:install"`);
-	})
-	.mode(ScriptMode.Series)
-	.describe('Install all project dependencies')
-;
+});
 
 
 script('run:dev', (script) => {
+	script.mode(ScriptMode.Series);
+	script.except(['root', 'js:b']);
+	script.env('HOME', process.env.HOME);
+	script.env('ENVIRONMENT', 'dev');
+	script.describe('Start development version');
+
 	script
 		.cmd('env')
 		.cmd('date')
 		.cmd('exit 1')		// let's fail here
 		.cmd('echo "invisible text"')
 	;
-})
-	.mode(ScriptMode.Series)
-	.except(['root', 'js:b'])
-	.env('HOME', process.env.HOME)
-	.env('ENVIRONMENT', 'dev')
-	.describe('Start development version')
-;
+});
 
 
 script('run:prod', (script) => {
+	script.mode(ScriptMode.Series);
+	script.only(['js:a']);
+	script.env('ENVIRONMENT', 'prod');
+	script.describe('Start production version');
+	script.before(['deps:install']);
+
 	script
 		.cmd('date')
 		.cmd('uptime')
 	;
-})
-	.before(['deps:install'])
-	.mode(ScriptMode.Series)
-	.only(['js:a'])
-	.env('ENVIRONMENT', 'prod')
-	.describe('Start production version')
-;
+});
 
 
 script('work', (script) => {
+	script.mode(ScriptMode.Series);
+
 	script.cmd('echo "Working hard..."');
-})
-	.mode(ScriptMode.Series)
-;
+});
 
 
 script('sleep:prepare', (script) => {
+	script.before(['work']);
+	script.before((before, ctx) => {
+		before.cmd(`echo "Preparing to sleep on ${ctx.project.name}"`);
+	});
+	script.after((after, ctx) => {
+		after.cmd(`echo "Prepared to sleep on ${ctx.project.name}"`);
+	});
+
 	script.cmd('sleep 1');
-})
-	.before(['work'])
-	.before((script, ctx) => {
-		script.cmd(`echo "Preparing to sleep on ${ctx.project.name}"`);
-	})
-	.after((script, ctx) => {
-		script.cmd(`echo "Prepared to sleep on ${ctx.project.name}"`);
-	})
-;
+});
 
 
 script('sleep', (script) => {
+	script.before(['sleep:prepare']);
+	script.before((before, ctx) => {
+		before.cmd(`echo "Before sleep on ${ctx.project.name}"`);
+	});
+	script.after((after, ctx) => {
+		after.cmd(`echo "After sleep on ${ctx.project.name}"`);
+	});
+
 	script.callback('sleep callback', async () => {
 		await sleep(5000);
 		return 0;
 	});
 
 	script.cmd('sleep 5');
-})
-	.before(['sleep:prepare'])
-	.before((script, ctx) => {
-		script.cmd(`echo "Before sleep on ${ctx.project.name}"`);
-	})
-	.after((script, ctx) => {
-		script.cmd(`echo "After sleep on ${ctx.project.name}"`);
-	})
-;
+});

@@ -26,8 +26,9 @@ Imba.script('deps:install', function(script, ctx) {
 });
 
 Imba.script('build', function(script) {
+    script.only(['front']);
     script.cmd('yarn run build');
-}).only(['front']);
+});
 
 Imba.script('up', function(script) {
     script.cmd('docker-compose up');
@@ -112,19 +113,24 @@ Imba.script('b', function(script, ctx) {
 });
 
 Imba.script('c', function(script) {
+    script.only(['a']);
+
     script.cmd('echo "Run script c only in project a"');
-}).only(['a']);
+});
 
 Imba.script('d', function(script) {
+    script.except(['a']);
+
     script.cmd('echo "Run script d in all projects, except for a"');
-}).except(['a']);
+});
 ```
 
 ## Describe your scripts
 
 ```javascript
-Imba.script('a', function() {})
-    .description('Awesome a script');
+Imba.script('a', function(script) {
+    script.describe('Awesome "a" script');
+});
 ```
 
 ## Use JS callbacks instead of CLI commands
@@ -147,11 +153,15 @@ the main scripts.
 
 ```javascript
 Imba.script('a', function(script) {
+    script.before(function(before) {
+        before.cmd('echo "Running before script for script a"');
+    });
+
+    script.after(function(after) {
+        after.cmd('echo "Running after script for script a"');
+    });
+
     script.cmd('echo "Running script a"');
-}).before(function(script) {
-    script.cmd('echo "Running before script for script a"');
-}).after(function(script) {
-    script.cmd('echo "Running after script for script a"');
 });
 ```
 
@@ -162,13 +172,15 @@ More `before` or `after` scripts can be defined for a script. You can also refer
 ```javascript
 Imba.script('a', function() {});
 
-Imba.script('b', function() {})
-    .before('a')
-    .before(function() {});
+Imba.script('b', function(script) {
+    script.before('a');
+    script.before(function() {});
+});
 
-Imba.script('c', function() {})
-    .before('b')
-    .before(function() {});
+Imba.script('c', function(script) {
+    script.before('b');
+    script.before(function() {});
+});
 ```
 
 Array of script names can be also provided, but in that case any other previously defined script will be removed:
@@ -182,9 +194,10 @@ Imba.script('a:happy', function(script) {
     script.cmd('echo "I will be called :-)"');
 });
 
-Imba.script('a', function() {})
-    .before('a:sad')
-    .before(['a:happy']);
+Imba.script('a', function(script) {
+    script.before('a:sad');
+    script.before(['a:happy']);
+});
 ```
 
 ## Environment variables
@@ -193,14 +206,17 @@ Imba-runner automatically adds some environment variables to your scripts.
 
 ```javascript
 Imba.script('a', function(script) {
-    script.cmd('echo ${IMBA_SCRIPT_NAME}');        // output: a
-    script.cmd('echo ${IMBA_SCRIPT_TYPE_NAME}');   // output: before_script
-    script.cmd('echo ${IMBA_PROJECT_NAME}');       // output: currently running project
-}).before(function(script) {
-    script.cmd('echo ${IMBA_SCRIPT_NAME}');        // output: a
-    script.cmd('echo ${IMBA_SCRIPT_TYPE_NAME}');   // output: script
-    script.cmd('echo ${IMBA_PROJECT_NAME}');       // output: currently running project
-}).after(function(script) {
+    script.before(function(before) {
+        before.cmd('echo ${IMBA_SCRIPT_NAME}');        // output: a
+        before.cmd('echo ${IMBA_SCRIPT_TYPE_NAME}');   // output: script
+        before.cmd('echo ${IMBA_PROJECT_NAME}');       // output: currently running project
+    });
+    script.after(function(after) {
+        after.cmd('echo ${IMBA_SCRIPT_NAME}');        // output: a
+        after.cmd('echo ${IMBA_SCRIPT_TYPE_NAME}');   // output: before_script
+        after.cmd('echo ${IMBA_PROJECT_NAME}');       // output: currently running project
+    });
+
     script.cmd('echo ${IMBA_SCRIPT_NAME}');        // output: a
     script.cmd('echo ${IMBA_SCRIPT_TYPE_NAME}');   // output: before_script
     script.cmd('echo ${IMBA_PROJECT_NAME}');       // output: currently running project
@@ -211,9 +227,11 @@ New custom environment variables could be also added.
 
 ```javascript
 Imba.script('deploy', function(script) {
+    script.env('URL', 'example.com');
+    script.env('STAGE', 'beta');
+    
     script.cmd('echo "deploying ${STAGE} to ${URL}"');
-}).env('URL', 'example.com')
-    .env('STAGE', 'beta');
+});
 ```
 
 You have to keep in mind, that no environment variables from your current process are passed into the scripts. The only 
@@ -223,8 +241,10 @@ If you want to pass some other environment variables into your scripts, you need
 
 ```javascript
 Imba.script('deploy', function(script) {
+    script.env('HOME', process.env.HOME);
+
     script.cmd('echo "deploying ${STAGE} to ${URL}"');
-}).env('HOME', process.env.HOME);
+});
 ```
 
 ### Inputs - ask questions in CLI
@@ -237,10 +257,12 @@ from your keyboard.
 
 ```javascript
 Imba.script('git:configure', function(script) {
+    script.input('USER_NAME', 'Your name?', {defaultValue: 'John Doe'});
+    script.input('USER_EMAIL', 'Your email?', {required: true});
+
     script.cmd('git config --global user.name ${USER_NAME}');
     script.cmd('git config --global user.email ${USER_EMAIL}');
-}).input('USER_NAME', 'Your name?', {defaultValue: 'John Doe'})
-    .input('USER_EMAIL', 'Your email?', {required: true});
+});
 ```
 
 Now before imba-runner executes the actual script, it'll ask you two questions: what is your name and email. After you 
@@ -257,11 +279,13 @@ Imba.project('a', './a');
 Imba.project('b', './b');
 
 Imba.script('a', function(script) {
+    script.mode(Imba.ScriptMode.Series);
+    
     script.cmd('sleep 1');
     script.cmd('echo "Running 1st script for project \'${IMBA_PROJECT_NAME}\'"');
     script.cmd('sleep 1');
     script.cmd('echo "Running 2nd script for project \'${IMBA_PROJECT_NAME}\'"');
-}).mode(Imba.ScriptMode.Series);
+});
 ```
 
 Now the output for the script `a` above should be something like this:
@@ -298,8 +322,9 @@ Any script can be marked as hidden. Such a scripts can not be run from CLI, but 
 withing the configuration.
 
 ```javascript
-Imba.script('hidden-script', function() {})
-    .hide();
+Imba.script('hidden-script', function(script) {
+    script.hide();
+});
 ```
 
 ## With Typescript
@@ -312,8 +337,10 @@ import {project, script, ScriptMode} from '@imba/runner';
 project('a', './a');
 
 script('a', (script) => {
+    script.mode(ScriptMode.Series);
+
     script.cmd('...');
-}).mode(ScriptMode.Series);
+});
 ```
 
 ## CLI: running scripts
