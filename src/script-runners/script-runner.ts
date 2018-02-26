@@ -1,5 +1,4 @@
 import {RunnerFactory} from '../runners';
-import {Output} from '../outputs';
 import {Command} from '../commands';
 import {ScriptContext} from '../script-context';
 import {Project} from '../project';
@@ -51,13 +50,10 @@ export abstract class ScriptRunner
 
 	private runnerFactory: RunnerFactory;
 
-	private output: Output;
 
-
-	constructor(runnerFactory: RunnerFactory, output: Output)
+	constructor(runnerFactory: RunnerFactory)
 	{
 		this.runnerFactory = runnerFactory;
-		this.output = output;
 	}
 
 
@@ -71,10 +67,7 @@ export abstract class ScriptRunner
 	}
 
 
-	protected abstract async doRunScript(projects: Array<Project>, script: Script, inputAnswers: EnvList): Promise<number>;
-
-
-	protected async runProjectScript(project: Project, script: Script, inputAnswers: EnvList): Promise<number>
+	public async runProjectScript(project: Project, script: Script, inputAnswers: EnvList): Promise<number>
 	{
 		const scriptName = script.name;
 		const scriptEnvironment = script.getEnvs();
@@ -100,6 +93,9 @@ export abstract class ScriptRunner
 
 		return returnCode;
 	}
+
+
+	protected abstract async doRunScript(projects: Array<Project>, script: Script, inputAnswers: EnvList): Promise<number>;
 
 
 	private async runScriptStack(project: Project, scriptCtx: ScriptContext, ctx: RunContext): Promise<number>

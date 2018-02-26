@@ -1,20 +1,23 @@
 import {CallbackCommand} from '../../../src/commands';
-import {RunContext} from '../../../src/run-context';
+import {RunContext, RunState} from '../../../src/run-context';
 import {Project} from '../../../src/project';
+import {Imba} from '../../../src/imba';
 import {expect} from 'chai';
 
 
+let imba: Imba;
 let ctx: RunContext;
 
 
 describe('#CallbackCommand', () => {
 
 	beforeEach(() => {
-		ctx = new RunContext(new Project('a', './a'));
+		imba = new Imba;
+		ctx = new RunContext(RunState.Run, new Project('a', './a'));
 	});
 
 	it('should transform failing callback command', async () => {
-		const cmd = new CallbackCommand('test', () => {
+		const cmd = new CallbackCommand(imba, 'test', () => {
 			throw new Error('Catch me');
 		});
 

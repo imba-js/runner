@@ -104,10 +104,10 @@ export class Executor
 		let scriptPrinter: ScriptPrinter;
 
 		if (script.getMode() === ScriptMode.Series) {
-			runner = new SeriesScriptRunner(this.runnerFactory, this.output);
+			runner = new SeriesScriptRunner(this.runnerFactory);
 			scriptPrinter = new SeriesScriptPrinter(this.output);
 		} else {
-			runner = new ParallelScriptRunner(this.runnerFactory, this.output);
+			runner = new ParallelScriptRunner(this.runnerFactory);
 			scriptPrinter = new ParallelScriptPrinter(this.output);
 		}
 

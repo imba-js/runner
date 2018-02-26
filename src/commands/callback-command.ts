@@ -1,6 +1,7 @@
 import {Command} from './command';
 import {RunContext} from '../run-context';
 import {EventEmitter} from '../event-emitter';
+import {Imba} from '../imba';
 import * as _ from 'lodash';
 
 
@@ -14,9 +15,9 @@ export class CallbackCommand extends Command
 	private cb: CallbackCommandCallback;
 
 
-	constructor(name: string, cb: CallbackCommandCallback)
+	constructor(imba: Imba, name: string, cb: CallbackCommandCallback)
 	{
-		super(name);
+		super(imba, name);
 
 		this.cb = cb;
 	}

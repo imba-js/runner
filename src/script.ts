@@ -61,14 +61,20 @@ export class Script
 
 	public loadConfiguration(): void
 	{
-		this.createScriptContext(new MockRunnerFactory, new RunContext(RunState.Load, Project.createSystemProject()));
+		const ctx = this.createScriptContext(new MockRunnerFactory, new RunContext(RunState.Load, Project.createSystemProject()));
+		const commands = ctx.getCommands();
+
+		for (let i = 0; i < commands.length; i++) {
+			this._inputs = this._inputs.concat(commands[i].getInputs());
+		}
+
 		this._locked = true;
 	}
 
 
 	public createScriptContext(runnerFactory: RunnerFactory, ctx: RunContext): ScriptContext
 	{
-		const storage = new ScriptContext(runnerFactory, this);
+		const storage = new ScriptContext(this._imba, runnerFactory, this);
 		this._definition(storage, ctx);
 
 		return storage;
@@ -318,26 +324,34 @@ export class Script
 	public getAllowedProjects(): Array<Project>
 	{
 		const projects = this._imba.getProjects();
-		const only = this._parent ? this._parent._only : this._only;
-		const except = this._parent ? this._parent._except : this._except;
-
 		const result: Array<Project> = [];
 
 		for (let i = 0; i < projects.length; i++) {
 			let project = projects[i];
 
-			if (except.indexOf(project.name) >= 0) {
-				continue;
+			if (this.isAllowedForProject(project)) {
+				result.push(project);
 			}
-
-			if (only.length > 0 && only.indexOf(project.name) < 0) {
-				continue;
-			}
-
-			result.push(project);
 		}
 
 		return result;
+	}
+
+
+	public isAllowedForProject(project: Project): boolean
+	{
+		const only = this._parent ? this._parent._only : this._only;
+		const except = this._parent ? this._parent._except : this._except;
+
+		if (except.indexOf(project.name) >= 0) {
+			return false;
+		}
+
+		if (only.length > 0 && only.indexOf(project.name) < 0) {
+			return false;
+		}
+
+		return true;
 	}
 
 

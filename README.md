@@ -146,6 +146,18 @@ Imba.script('a', function(script) {
 
 Callbacks and CLI commands can be of course combined together.
 
+## Run other script from within another script
+
+```javascript
+Imba.script('a', function() {});
+
+Imba.script('b', function(script) {
+    script.cmd('echo "before"');
+    script.run('a');    // run script "a"
+    script.cmd('echo "after"');
+});
+```
+
 ## Run script before or after
 
 Just like in for example`.gitlab-ci.yml` file or in `deployer`, you can define special scripts to run before or after 

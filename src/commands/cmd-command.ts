@@ -1,6 +1,7 @@
 import {Command} from './command';
 import {RunnerFactory} from '../runners';
 import {RunContext} from '../run-context';
+import {Imba} from '../imba';
 
 
 export class CmdCommand extends Command
@@ -12,9 +13,9 @@ export class CmdCommand extends Command
 	private cmd: string;
 
 
-	constructor(runnerFactory: RunnerFactory, cmd: string)
+	constructor(imba: Imba, runnerFactory: RunnerFactory, cmd: string)
 	{
-		super(cmd);
+		super(imba, cmd);
 
 		this.runnerFactory = runnerFactory;
 		this.cmd = cmd;

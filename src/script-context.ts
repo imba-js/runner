@@ -1,12 +1,15 @@
-import {Command, CmdCommand, CallbackCommand, CallbackCommandCallback} from './commands';
+import {Command, CmdCommand, CallbackCommand, CallbackCommandCallback, RunCommand} from './commands';
 import {RunnerFactory} from './runners';
 import {Script, ScriptMode, ScriptDefinitionCallback} from './script';
 import {InputOptions} from './input';
+import {Imba} from './imba';
 
 
 export class ScriptContext
 {
 
+
+	private _imba: Imba;
 
 	private _runnerFactory: RunnerFactory;
 
@@ -15,8 +18,9 @@ export class ScriptContext
 	private _commands: Array<Command> = [];
 
 
-	constructor(runnerFactory: RunnerFactory, script: Script)
+	constructor(imba: Imba, runnerFactory: RunnerFactory, script: Script)
 	{
+		this._imba = imba;
 		this._runnerFactory = runnerFactory;
 		this._script = script;
 	}
@@ -85,21 +89,28 @@ export class ScriptContext
 	}
 
 
+	public addCommand(cmd: Command): ScriptContext
+	{
+		this._commands.push(cmd);
+		return this;
+	}
+
+
 	public cmd(command: string): ScriptContext
 	{
-		const cmd = new CmdCommand(this._runnerFactory, command);
-		this._commands.push(cmd);
-
-		return this;
+		return this.addCommand(new CmdCommand(this._imba, this._runnerFactory, command));
 	}
 
 
 	public callback(name: string, cb: CallbackCommandCallback): ScriptContext
 	{
-		const cmd = new CallbackCommand(name, cb);
-		this._commands.push(cmd);
+		return this.addCommand(new CallbackCommand(this._imba, name, cb));
+	}
 
-		return this;
+
+	public run(script: string): ScriptContext
+	{
+		return this.addCommand(new RunCommand(this._imba, this._runnerFactory, script));
 	}
 
 

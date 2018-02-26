@@ -117,3 +117,37 @@ script('sleep', (script) => {
 
 	script.cmd('sleep 5');
 });
+
+
+script('child:c', (script) => {
+	script.only(['root']);
+
+	script.cmd('echo "Child:c"');
+});
+
+
+script('child:b', (script) => {
+	script.only(['root']);
+
+	script.cmd('echo "Child:b before"');
+	script.run('child:c');
+	script.cmd('echo "Child:b after"');
+});
+
+
+script('child:a', (script) => {
+	script.only(['root']);
+
+	script.cmd('echo "Child:a before"');
+	script.run('child:b');
+	script.cmd('echo "Child:a after"');
+});
+
+
+script('parent', (script) => {
+	script.only(['root']);
+
+	script.cmd('echo "Parent before"');
+	script.run('child:a');
+	script.cmd('echo "Parent after"');
+});
