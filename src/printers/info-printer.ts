@@ -42,6 +42,11 @@ export class InfoPrinter extends Printer
 			}
 
 			this.output.log(chalk.green(script.name));
+
+			if (script.hasDescription()) {
+				this.output.log(`  ${chalk.magenta('Description:')} ${script.getDescription()}`);
+			}
+
 			this.output.log(`  ${chalk.magenta('Mode:')} ${script.getMode()}`);
 
 			if (script.hasEnvs()) {
