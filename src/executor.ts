@@ -30,7 +30,7 @@ export class Executor
 	}
 
 
-	public async run(script: Script): Promise<number>
+	public async run(script: Script, dry: boolean = false): Promise<number>
 	{
 		const startTime = new Date;
 
@@ -50,16 +50,16 @@ export class Executor
 		const afterScripts = script.getAfterScripts(true);
 
 		const inputs = script.getAllRecursiveInputs();
-		const answers = await this.getInputAnswers(inputs);
+		const answers = await this.getInputAnswers(inputs, dry);
 
-		const beforeScriptsReturnCode = await this.runScriptsList(beforeScripts, answers);
+		const beforeScriptsReturnCode = await this.runScriptsList(beforeScripts, answers, dry);
 
 		if (beforeScriptsReturnCode > 0) {
 			return finish(beforeScriptsReturnCode);
 		}
 
-		const returnCode = await this.runScript(script, answers.main);
-		const afterScriptsReturnCode = await this.runScriptsList(afterScripts, answers);
+		const returnCode = await this.runScript(script, answers.main, dry);
+		const afterScriptsReturnCode = await this.runScriptsList(afterScripts, answers, dry);
 
 		if (returnCode === 0 && afterScriptsReturnCode > 0) {
 			return finish(afterScriptsReturnCode);
@@ -80,12 +80,12 @@ export class Executor
 	}
 
 
-	private async runScriptsList(scripts: Array<Script>, answers: AnswersList): Promise<number>
+	private async runScriptsList(scripts: Array<Script>, answers: AnswersList, dry: boolean): Promise<number>
 	{
 		let returnCode = 0;
 
 		for (let i = 0; i < scripts.length; i++) {
-			returnCode = await this.runScript(scripts[i], answers[scripts[i].name]);
+			returnCode = await this.runScript(scripts[i], answers[scripts[i].name], dry);
 
 			this.output.log('');
 
@@ -98,7 +98,7 @@ export class Executor
 	}
 
 
-	private runScript(script: Script, inputAnswers: EnvList = {}): Promise<number>
+	private runScript(script: Script, inputAnswers: EnvList, dry: boolean): Promise<number>
 	{
 		let runner: ScriptRunner;
 		let scriptPrinter: ScriptPrinter;
@@ -115,18 +115,18 @@ export class Executor
 
 		const projects = script.getAllowedProjects();
 
-		return runner.runScript(projects, script, inputAnswers);
+		return runner.runScript(projects, script, inputAnswers, dry);
 	}
 
 
-	private async getInputAnswers(inputs: InputsList): Promise<AnswersList>
+	private async getInputAnswers(inputs: InputsList, dry: boolean): Promise<AnswersList>
 	{
 		const questions = new Questions(this.output);
 		const result: AnswersList = {};
 
 		for (let name in inputs) {
 			if (inputs.hasOwnProperty(name)) {
-				result[name] = await questions.askQuestions(inputs[name]);
+				result[name] = await questions.askQuestions(inputs[name], dry);
 			}
 		}
 

@@ -8,12 +8,12 @@ export class SeriesScriptRunner extends ScriptRunner
 {
 
 
-	protected async doRunScript(projects: Array<Project>, script: Script, inputAnswers: EnvList): Promise<number>
+	protected async doRunScript(projects: Array<Project>, script: Script, inputAnswers: EnvList, dry: boolean): Promise<number>
 	{
 		let returnCode = 0;
 
 		for (let i = 0; i < projects.length; i++) {
-			const currentReturnCode = await this.runProjectScript(projects[i], script, inputAnswers);
+			const currentReturnCode = await this.runProjectScript(projects[i], script, inputAnswers, dry);
 
 			if (currentReturnCode > 0) {
 				returnCode = currentReturnCode;

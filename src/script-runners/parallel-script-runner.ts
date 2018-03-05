@@ -8,7 +8,7 @@ export class ParallelScriptRunner extends ScriptRunner
 {
 
 
-	protected async doRunScript(projects: Array<Project>, script: Script, inputAnswers: EnvList): Promise<number>
+	protected async doRunScript(projects: Array<Project>, script: Script, inputAnswers: EnvList, dry: boolean): Promise<number>
 	{
 		let totalSize = projects.length;
 		let returnCode = 0;
@@ -29,7 +29,7 @@ export class ParallelScriptRunner extends ScriptRunner
 			}
 
 			for (let i = 0; i < projects.length; i++) {
-				this.runProjectScript(projects[i], script, inputAnswers).then(finish);
+				this.runProjectScript(projects[i], script, inputAnswers, dry).then(finish);
 			}
 		});
 	}

@@ -16,7 +16,10 @@ const argv = yargs
 	.option('config', {alias: 'c', default: `${process.cwd()}/.imba-runner`})
 	.command('info', 'Show information about all registered projects and scripts')
 	.command('list', 'Print all available scripts')
-	.command('run', 'Run defined script')
+	.command('run', 'Run defined script', (yargs) => {
+		yargs.option('dry', {default: false});
+		return yargs;
+	})
 	.command('exec', 'Execute given command in specific project')
 	.demandCommand()
 	.help('h')
@@ -82,7 +85,7 @@ switch (argv._[0]) {
 			showError(`Script ${argv._[1]} is hidden and can not be run from CLI directly.`);
 		}
 
-		executor.run(script).then((returnCode) => {
+		executor.run(script, argv.dry).then((returnCode) => {
 			process.exit(returnCode);
 		});
 

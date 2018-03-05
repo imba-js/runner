@@ -363,6 +363,14 @@ script('a', (script) => {
 $ imba run deploy
 ```
 
+**Run script in dry mode:**
+
+This mode will actually not execute any commands, it will just print them.
+
+```bash
+$ imba run deploy --dry
+```
+
 **Show available info about projects and scripts:**
 
 ```bash

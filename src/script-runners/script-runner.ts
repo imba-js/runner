@@ -57,17 +57,17 @@ export abstract class ScriptRunner
 	}
 
 
-	public async runScript(projects: Array<Project>, script: Script, inputAnswers: EnvList = {}): Promise<number>
+	public async runScript(projects: Array<Project>, script: Script, inputAnswers: EnvList = {}, dry: boolean = false): Promise<number>
 	{
 		this.onStart.emit(script.name);
-		const returnCode = await this.doRunScript(projects, script, inputAnswers);
+		const returnCode = await this.doRunScript(projects, script, inputAnswers, dry);
 		this.onEnd.emit(returnCode);
 
 		return returnCode;
 	}
 
 
-	public async runProjectScript(project: Project, script: Script, inputAnswers: EnvList): Promise<number>
+	public async runProjectScript(project: Project, script: Script, inputAnswers: EnvList, dry: boolean = false): Promise<number>
 	{
 		const scriptName = script.name;
 		const scriptEnvironment = script.getEnvs();
@@ -84,7 +84,7 @@ export abstract class ScriptRunner
 			IMBA_PROJECT_NAME: projectName,
 		}), inputAnswers);
 
-		const returnCode = await this.runScriptStack(project, script.createScriptContext(this.runnerFactory, ctx), ctx);
+		const returnCode = await this.runScriptStack(project, script.createScriptContext(this.runnerFactory, ctx), ctx, dry);
 
 		this.onProjectEnd.emit({
 			project: project,
@@ -95,16 +95,16 @@ export abstract class ScriptRunner
 	}
 
 
-	protected abstract async doRunScript(projects: Array<Project>, script: Script, inputAnswers: EnvList): Promise<number>;
+	protected abstract async doRunScript(projects: Array<Project>, script: Script, inputAnswers: EnvList, dry: boolean): Promise<number>;
 
 
-	private async runScriptStack(project: Project, scriptCtx: ScriptContext, ctx: RunContext): Promise<number>
+	private async runScriptStack(project: Project, scriptCtx: ScriptContext, ctx: RunContext, dry: boolean): Promise<number>
 	{
 		const _commands = scriptCtx.getCommands();
 		let returnCode = 0;
 
 		for (let i = 0; i < _commands.length; i++) {
-			returnCode = await this.runCommand(project, _commands[i], ctx);
+			returnCode = await this.runCommand(project, _commands[i], ctx, dry);
 
 			if (returnCode > 0) {
 				return returnCode;
@@ -115,8 +115,17 @@ export abstract class ScriptRunner
 	}
 
 
-	private runCommand(project: Project, command: Command, ctx: RunContext): Promise<number>
+	private async runCommand(project: Project, command: Command, ctx: RunContext, dry: boolean): Promise<number>
 	{
+		if (dry) {
+			this.onCommandRun.emit({
+				project: project,
+				command: command,
+			});
+
+			return 0;
+		}
+
 		command.onStart.subscribe(() => {
 			this.onCommandRun.emit({
 				project: project,

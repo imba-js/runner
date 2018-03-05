@@ -18,7 +18,7 @@ export class Questions
 	}
 
 
-	public async askQuestions(inputs: Array<Input>): Promise<EnvList>
+	public async askQuestions(inputs: Array<Input>, dry: boolean = false): Promise<EnvList>
 	{
 		const result: EnvList = {};
 		const output = this.output;
@@ -30,6 +30,10 @@ export class Questions
 
 		async function askQuestion(input: Input): Promise<string>
 		{
+			if (dry) {
+				return '';
+			}
+
 			return new Promise<string>((resolve) => {
 				const meta: Array<string> = [];
 
