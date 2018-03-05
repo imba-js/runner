@@ -9,6 +9,7 @@ import * as _ from 'lodash';
 
 
 export declare type ScriptDefinitionCallback = (storage: ScriptContext, context: RunContext) => void;
+export declare type ScriptOrDefinitionCallback = ScriptDefinitionCallback|string|Array<string>;
 
 export enum ScriptMode
 {
@@ -162,7 +163,7 @@ export class Script
 	}
 
 
-	public before(scriptOrDefinition: ScriptDefinitionCallback|string|Array<string>): Script
+	public before(scriptOrDefinition: ScriptOrDefinitionCallback): Script
 	{
 		if (this._locked) {
 			return this;
@@ -210,7 +211,7 @@ export class Script
 	}
 
 
-	public after(scriptOrDefinition: ScriptDefinitionCallback|string|Array<string>): Script
+	public after(scriptOrDefinition: ScriptOrDefinitionCallback): Script
 	{
 		if (this._locked) {
 			return this;

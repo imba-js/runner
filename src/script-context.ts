@@ -1,6 +1,6 @@
 import {Command, CmdCommand, CallbackCommand, CallbackCommandCallback, RunCommand} from './commands';
 import {RunnerFactory} from './runners';
-import {Script, ScriptMode, ScriptDefinitionCallback} from './script';
+import {Script, ScriptMode, ScriptOrDefinitionCallback} from './script';
 import {InputOptions} from './input';
 import {Imba} from './imba';
 
@@ -54,14 +54,14 @@ export class ScriptContext
 	}
 
 
-	public before(scriptOrDefinition: ScriptDefinitionCallback|string|Array<string>): ScriptContext
+	public before(scriptOrDefinition: ScriptOrDefinitionCallback): ScriptContext
 	{
 		this._script.before(scriptOrDefinition);
 		return this;
 	}
 
 
-	public after(scriptOrDefinition: ScriptDefinitionCallback|string|Array<string>): ScriptContext
+	public after(scriptOrDefinition: ScriptOrDefinitionCallback): ScriptContext
 	{
 		this._script.after(scriptOrDefinition);
 		return this;
