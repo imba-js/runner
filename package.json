@@ -1,5 +1,9 @@
 {
 	"name": "@imba/runner",
+	"description": "Tool for managing CLI commands for your monorepo",
+	"keywords": [
+		"monorepo", "monorepository", "runner", "tasker"
+	],
 	"version": "3.0.0",
 	"license": "MIT",
 	"author": {

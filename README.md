@@ -1,6 +1,6 @@
 [![Build Status](https://img.shields.io/travis/imba-js/runner.svg?style=flat-square)](https://travis-ci.org/imba-js/runner)
 
-# imba-runner
+# @imba/runner
 
 `imba` command allows you to easily manage and run shell commands in your monolithic repository.
 
