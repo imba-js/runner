@@ -15,6 +15,14 @@ export declare interface ScriptCommandStartArg
 }
 
 
+export declare interface ScriptCommandFinishArg
+{
+	project: Project,
+	command: Command,
+	returnCode: number,
+}
+
+
 export declare interface ScriptCommandOutputArg
 {
 	project: Project,
@@ -43,6 +51,8 @@ export abstract class ScriptRunner
 	public onProjectEnd: EventEmitter<ScriptProjectArg> = new EventEmitter<ScriptProjectArg>();
 
 	public onCommandRun: EventEmitter<ScriptCommandStartArg> = new EventEmitter<ScriptCommandStartArg>();
+
+	public onCommandFinish: EventEmitter<ScriptCommandFinishArg> = new EventEmitter<ScriptCommandFinishArg>();
 
 	public onCommandStdout: EventEmitter<ScriptCommandOutputArg> = new EventEmitter<ScriptCommandOutputArg>();
 
@@ -123,6 +133,12 @@ export abstract class ScriptRunner
 				command: command,
 			});
 
+			this.onCommandFinish.emit({
+				project: project,
+				command: command,
+				returnCode: 0,
+			});
+
 			return 0;
 		}
 
@@ -146,6 +162,14 @@ export abstract class ScriptRunner
 				project: project,
 				command: command,
 				chunk: chunk,
+			});
+		});
+
+		command.onEnd.subscribe((returnCode) => {
+			this.onCommandFinish.emit({
+				project: project,
+				command: command,
+				returnCode: returnCode,
 			});
 		});
 

@@ -8,4 +8,6 @@ export interface Output
 
 	stderr(message: string): void;
 
+	cursorTo(x: number, y?: number): void;
+
 }

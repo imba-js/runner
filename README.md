@@ -125,6 +125,20 @@ Imba.script('d', function(script) {
 });
 ```
 
+## Configure CMD commands
+
+```javascript
+Imba.script('run', function(script) {
+	script.cmd('npm run start', {
+		killSignal: 'SIGINT'
+	});
+});
+```
+
+**Available options:**
+
+* `killSignal`: signal sent to executed child process when the main imba process is terminated
+
 ## Describe your scripts
 
 ```javascript

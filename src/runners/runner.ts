@@ -31,4 +31,9 @@ export abstract class Runner
 
 	public abstract run(): Promise<number>;
 
+
+	public kill(signal?: string): void
+	{
+	}
+
 }

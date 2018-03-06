@@ -63,11 +63,19 @@ if (path.extname(configFile) === '.ts') {
 
 const imba = loadImbaFromFile(reader, configFile);
 const executor = new Executor(runnerFactory, output, imba);
+const command = argv._[0];
 
 imba.loadScriptConfigurations();
 
 
-switch (argv._[0]) {
+process.on('SIGINT', () => {
+	executor.killRunning(() => {
+		process.exit();
+	});
+});
+
+
+switch (command) {
 	case 'info': (new InfoPrinter(output)).printInfo(configFile, imba); break;
 	case 'list': (new ListPrinter(output)).printList(imba); break;
 	case 'run':
@@ -75,14 +83,16 @@ switch (argv._[0]) {
 			showError(`Missing run script.`);
 		}
 
-		if (!imba.hasScript(argv._[1])) {
-			showError(`Script ${argv._[1]} is not defined.`);
+		const scriptName = argv._[1];
+
+		if (!imba.hasScript(scriptName)) {
+			showError(`Script ${scriptName} is not defined.`);
 		}
 
-		const script = imba.getScript(argv._[1]);
+		const script = imba.getScript(scriptName);
 
 		if (script.isHidden()) {
-			showError(`Script ${argv._[1]} is hidden and can not be run from CLI directly.`);
+			showError(`Script ${scriptName} is hidden and can not be run from CLI directly.`);
 		}
 
 		executor.run(script, argv.dry).then((returnCode) => {
@@ -95,14 +105,16 @@ switch (argv._[0]) {
 			showError(`Missing project name.`);
 		}
 
-		if (!imba.hasProject(argv._[1])) {
-			showError(`Project ${argv._[1]} is not defined.`);
+		const projectName = argv._[1];
+
+		if (!imba.hasProject(projectName)) {
+			showError(`Project ${projectName} is not defined.`);
 		}
 
-		const project = imba.getProject(argv._[1]);
-		const command = argv._.slice(2);
+		const project = imba.getProject(projectName);
+		const cmd = argv._.slice(2);
 
-		executor.runProjectCommand(project, command.join(' ')).then((returnCode) => {
+		executor.runProjectCommand(project, cmd.join(' ')).then((returnCode) => {
 			process.exit(returnCode);
 		});
 

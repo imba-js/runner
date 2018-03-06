@@ -20,6 +20,8 @@ export abstract class Command
 
 	protected _imba: Imba;
 
+	private killed: boolean = false;
+
 
 	constructor(imba: Imba, name: string)
 	{
@@ -29,6 +31,18 @@ export abstract class Command
 
 
 	public abstract run(ctx: RunContext): Promise<number>;
+
+
+	public kill(overrideSignal?: string): void
+	{
+		this.killed = true;
+	}
+
+
+	public isKilled(): boolean
+	{
+		return this.killed;
+	}
 
 
 	public getInputs(): Array<Input>

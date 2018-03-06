@@ -7,6 +7,7 @@ import {Imba} from './imba';
 import {Script, ScriptMode} from './script';
 import {Project} from './project';
 import {Questions} from './questions';
+import {Command} from './commands';
 import {createScriptEnvironment, EnvList} from './environment-variable';
 import chalk from 'chalk';
 
@@ -20,6 +21,8 @@ export class Executor
 	private output: Output;
 
 	private runnerFactory: RunnerFactory;
+
+	private currentCommands: Array<Command> = [];
 
 
 	constructor(runnerFactory: RunnerFactory, output: Output, imba: Imba)
@@ -69,6 +72,52 @@ export class Executor
 	}
 
 
+	public killRunning(done?: () => void): void
+	{
+		this.output.log('');
+
+		const total = this.currentCommands.length;
+		const killing: Array<Command> = [];
+
+		let isDone = false;
+		let killed = 0;
+
+		const kill = (command: Command) => {
+			killed++;
+			killing.splice(killing.indexOf(command), 1);
+
+			if (killed === total && !isDone) {
+				isDone = true;
+				done();
+			}
+		};
+
+		for (let i = 0; i < total; i++) {
+			const command = this.currentCommands[i];
+			killing.push(command);
+
+			this.output.log(`Terminating ${command.name}...`);
+
+			command.onEnd.subscribe(() => kill(command));
+			command.kill();
+		}
+
+		setTimeout(() => {
+			if (isDone) {
+				return;
+			}
+
+			for (let i = 0; i < killing.length; i++) {
+				if (!killing[i].isKilled()) {
+					killing[i].kill('SIGKILL');
+				}
+			}
+
+			done();
+		}, 30 * 1000);
+	}
+
+
 	public runProjectCommand(project: Project, command: string): Promise<number>
 	{
 		const runner = this.runnerFactory.createRunner(project.root, command, createScriptEnvironment());
@@ -110,6 +159,18 @@ export class Executor
 			runner = new ParallelScriptRunner(this.runnerFactory);
 			scriptPrinter = new ParallelScriptPrinter(this.output);
 		}
+
+		runner.onCommandRun.subscribe((arg) => {
+			this.currentCommands.push(arg.command);
+		});
+
+		runner.onCommandFinish.subscribe((arg) => {
+			const pos = this.currentCommands.indexOf(arg.command);
+
+			if (pos >= 0) {
+				this.currentCommands.splice(pos, 1);
+			}
+		});
 
 		scriptPrinter.enablePrinter(runner);
 

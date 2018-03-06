@@ -29,4 +29,9 @@ export class MockOutput implements Output
 		this._stderr.push(message);
 	}
 
+
+	public cursorTo(x: number, y?: number): void
+	{
+	}
+
 }

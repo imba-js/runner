@@ -1,4 +1,4 @@
-import {Command, CmdCommand, CallbackCommand, CallbackCommandCallback, RunCommand} from './commands';
+import {Command, CmdCommand, CmdCommandOptions, CallbackCommand, CallbackCommandCallback, RunCommand} from './commands';
 import {RunnerFactory} from './runners';
 import {Script, ScriptMode, ScriptOrDefinitionCallback} from './script';
 import {InputOptions} from './input';
@@ -96,9 +96,9 @@ export class ScriptContext
 	}
 
 
-	public cmd(command: string): ScriptContext
+	public cmd(command: string, options: CmdCommandOptions = {}): ScriptContext
 	{
-		return this.addCommand(new CmdCommand(this._imba, this._runnerFactory, command));
+		return this.addCommand(new CmdCommand(this._imba, this._runnerFactory, command, options));
 	}
 
 
