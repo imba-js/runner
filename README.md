@@ -1,4 +1,4 @@
-[![Build Status](https://img.shields.io/travis/imba-runner/imba-runner.svg?style=flat-square)](https://travis-ci.org/imba-runner/imba-runner)
+[![Build Status](https://img.shields.io/travis/imba-js/runner.svg?style=flat-square)](https://travis-ci.org/imba-js/runner)
 
 # imba-runner
 
