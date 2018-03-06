@@ -1,4 +1,4 @@
-import {EventEmitter} from '../event-emitter';
+import {EventEmitter} from '@imba/event-emitter';
 import {RunContext} from '../run-context';
 import {Input} from '../input';
 import {Imba} from '../imba';

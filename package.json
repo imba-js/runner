@@ -21,6 +21,7 @@
 		"imba": "./lib/main.js"
 	},
 	"dependencies": {
+		"@imba/event-emitter": "^0.0.2",
 		"chalk": "^2.3.0",
 		"lodash": "^4.17.4",
 		"pad": "^2.0.3",

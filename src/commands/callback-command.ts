@@ -1,6 +1,6 @@
+import {EventEmitter} from '@imba/event-emitter';
 import {Command} from './command';
 import {RunContext} from '../run-context';
-import {EventEmitter} from '../event-emitter';
 import {Imba} from '../imba';
 import * as _ from 'lodash';
 

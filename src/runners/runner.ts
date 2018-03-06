@@ -1,5 +1,5 @@
+import {EventEmitter} from '@imba/event-emitter';
 import {EnvList} from '../environment-variable';
-import {EventEmitter} from '../event-emitter';
 
 
 export abstract class Runner

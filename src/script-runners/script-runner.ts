@@ -1,9 +1,9 @@
+import {EventEmitter} from '@imba/event-emitter';
 import {RunnerFactory} from '../runners';
 import {Command} from '../commands';
 import {ScriptContext} from '../script-context';
 import {Project} from '../project';
 import {Script} from '../script';
-import {EventEmitter} from '../event-emitter';
 import {RunContext, RunState} from '../run-context';
 import {createScriptEnvironment, EnvList} from '../environment-variable';
 

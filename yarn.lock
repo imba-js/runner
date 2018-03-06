@@ -2,6 +2,10 @@
 # yarn lockfile v1
 
 
+"@imba/event-emitter@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@imba/event-emitter/-/event-emitter-0.0.2.tgz#ac352a47e656166e2a8df2627edfcd11a3d4827d"
+
 "@types/chai@^4.1.2":
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/@types/chai/-/chai-4.1.2.tgz#f1af664769cfb50af805431c407425ed619daa21"
