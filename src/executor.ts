@@ -1,12 +1,11 @@
+import {Output, Readline, Questions} from '@imba/stdio';
 import {ParallelScriptPrinter, ScriptPrinter, SeriesScriptPrinter, ProjectCommandPrinter} from './printers';
 import {ParallelScriptRunner, ScriptRunner, SeriesScriptRunner} from './script-runners';
 import {RunnerFactory} from './runners';
-import {Output} from './outputs';
-import {InputsList, AnswersList} from './input';
+import {InputsList, Input, AnswersList} from './input';
 import {Imba} from './imba';
 import {Script, ScriptMode} from './script';
 import {Project} from './project';
-import {Questions} from './questions';
 import {Command} from './commands';
 import {createScriptEnvironment, EnvList} from './environment-variable';
 import chalk from 'chalk';
@@ -20,15 +19,18 @@ export class Executor
 
 	private output: Output;
 
+	private rl: Readline;
+
 	private runnerFactory: RunnerFactory;
 
 	private currentCommands: Array<Command> = [];
 
 
-	constructor(runnerFactory: RunnerFactory, output: Output, imba: Imba)
+	constructor(runnerFactory: RunnerFactory, output: Output, rl: Readline, imba: Imba)
 	{
 		this.runnerFactory = runnerFactory;
 		this.output = output;
+		this.rl = rl;
 		this.imba = imba;
 	}
 
@@ -61,7 +63,7 @@ export class Executor
 			return finish(beforeScriptsReturnCode);
 		}
 
-		const returnCode = await this.runScript(script, answers.main, dry);
+		const returnCode = await this.runScript(script, answers[script.name], dry);
 		const afterScriptsReturnCode = await this.runScriptsList(afterScripts, answers, dry);
 
 		if (returnCode === 0 && afterScriptsReturnCode > 0) {
@@ -182,12 +184,26 @@ export class Executor
 
 	private async getInputAnswers(inputs: InputsList, dry: boolean): Promise<AnswersList>
 	{
-		const questions = new Questions(this.output);
+		const questions = new Questions(this.output, this.rl);
 		const result: AnswersList = {};
 
 		for (let name in inputs) {
 			if (inputs.hasOwnProperty(name)) {
-				result[name] = await questions.askQuestions(inputs[name], dry);
+				result[name] = {};
+
+				for (let i = 0; i < inputs[name].length; i++) {
+					const input: Input = inputs[name][i];
+
+					if (dry) {
+						result[name][input.name] = '';
+
+					} else {
+						result[name][input.name] = await questions.askQuestion(input.question, {
+							required: input.required,
+							defaultValue: input.defaultValue,
+						});
+					}
+				}
 			}
 		}
 

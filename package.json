@@ -2,7 +2,10 @@
 	"name": "@imba/runner",
 	"description": "Tool for managing CLI commands for your monorepo",
 	"keywords": [
-		"monorepo", "monorepository", "runner", "tasker"
+		"monorepo",
+		"monorepository",
+		"runner",
+		"tasker"
 	],
 	"version": "3.0.0",
 	"license": "MIT",
@@ -22,10 +25,10 @@
 	},
 	"dependencies": {
 		"@imba/event-emitter": "^0.0.2",
+		"@imba/stdio": "^1.0.0",
 		"chalk": "^2.3.0",
 		"lodash": "^4.17.4",
 		"pad": "^2.0.3",
-		"term-size": "^1.2.0",
 		"ts-node": "^4.1.0",
 		"typescript": "^2.7.2",
 		"yargs": "^11.0.0"
