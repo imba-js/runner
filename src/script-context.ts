@@ -1,5 +1,5 @@
+import {ChildProcessFactory} from '@imba/spawn';
 import {Command, CmdCommand, CmdCommandOptions, CallbackCommand, CallbackCommandCallback, RunCommand} from './commands';
-import {RunnerFactory} from './runners';
 import {Script, ScriptMode, ScriptOrDefinitionCallback} from './script';
 import {InputOptions} from './input';
 import {Imba} from './imba';
@@ -11,17 +11,17 @@ export class ScriptContext
 
 	private _imba: Imba;
 
-	private _runnerFactory: RunnerFactory;
+	private _childProcessFactory: ChildProcessFactory;
 
 	private _script: Script;
 
 	private _commands: Array<Command> = [];
 
 
-	constructor(imba: Imba, runnerFactory: RunnerFactory, script: Script)
+	constructor(imba: Imba, childProcessFactory: ChildProcessFactory, script: Script)
 	{
 		this._imba = imba;
-		this._runnerFactory = runnerFactory;
+		this._childProcessFactory = childProcessFactory;
 		this._script = script;
 	}
 
@@ -98,7 +98,7 @@ export class ScriptContext
 
 	public cmd(command: string, options: CmdCommandOptions = {}): ScriptContext
 	{
-		return this.addCommand(new CmdCommand(this._imba, this._runnerFactory, command, options));
+		return this.addCommand(new CmdCommand(this._imba, this._childProcessFactory, command, options));
 	}
 
 
@@ -110,7 +110,7 @@ export class ScriptContext
 
 	public run(script: string): ScriptContext
 	{
-		return this.addCommand(new RunCommand(this._imba, this._runnerFactory, script));
+		return this.addCommand(new RunCommand(this._imba, this._childProcessFactory, script));
 	}
 
 

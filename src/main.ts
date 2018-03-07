@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 import {NativeOutput, NativeReadline} from '@imba/stdio';
+import {NativeChildProcessFactory} from '@imba/spawn';
 import {configFileLookup, loadImbaFromFile} from './configuration';
-import {SpawnRunnerFactory} from './runners';
 import {InfoPrinter, ListPrinter} from './printers';
 import {NativeFileReader} from './file-readers';
 import {Executor} from './executor';
@@ -34,7 +34,7 @@ const argv = yargs
 const output = new NativeOutput;
 const rl = new NativeReadline;
 const reader = new NativeFileReader;
-const runnerFactory = new SpawnRunnerFactory;
+const childProcessFactory = new NativeChildProcessFactory;
 
 
 function showError(message: string): void
@@ -63,7 +63,7 @@ if (path.extname(configFile) === '.ts') {
 
 
 const imba = loadImbaFromFile(reader, configFile);
-const executor = new Executor(runnerFactory, output, rl, imba);
+const executor = new Executor(childProcessFactory, output, rl, imba);
 const command = argv._[0];
 
 imba.loadScriptConfigurations();

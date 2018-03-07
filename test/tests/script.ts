@@ -1,18 +1,18 @@
+import {MockChildProcessFactory} from '@imba/spawn';
 import {Script, ScriptMode} from '../../src/script';
 import {Input} from '../../src/input';
 import {EnvironmentVariable} from '../../src/environment-variable';
 import {Imba} from '../../src/imba';
 import {Project} from '../../src/project';
 import {ScriptContext} from '../../src/script-context';
-import {CmdCommand} from '../../src/commands/index';
-import {MockRunnerFactory} from '../../src/runners/index';
+import {CmdCommand} from '../../src/commands';
 import {RunContext, RunState} from '../../src/run-context';
 import {expect} from 'chai';
 
 
 let imba: Imba;
 let script: Script;
-let runnerFactory: MockRunnerFactory;
+let childProcessFactory: MockChildProcessFactory;
 let ctx: RunContext;
 
 
@@ -20,7 +20,7 @@ describe('#Script', () => {
 
 	beforeEach(() => {
 		imba = new Imba;
-		runnerFactory = new MockRunnerFactory;
+		childProcessFactory = new MockChildProcessFactory;
 		script = new Script(imba, 'a', () => {});
 		ctx = new RunContext(RunState.Run, new Project('a', './a'));
 	});
@@ -146,7 +146,7 @@ describe('#Script', () => {
 	describe('createScriptContext()', () => {
 
 		it('should create empty commands storage', () => {
-			const commands = script.createScriptContext(runnerFactory, ctx);
+			const commands = script.createScriptContext(childProcessFactory, ctx);
 
 			expect(commands).to.be.an.instanceOf(ScriptContext);
 			expect(commands.isEmpty()).to.be.equal(true);
@@ -157,7 +157,7 @@ describe('#Script', () => {
 				storage.cmd('pwd');
 			});
 
-			const commands = script.createScriptContext(runnerFactory, ctx);
+			const commands = script.createScriptContext(childProcessFactory, ctx);
 
 			expect(commands).to.be.an.instanceOf(ScriptContext);
 			expect(commands.isEmpty()).to.be.equal(false);

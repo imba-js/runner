@@ -1,6 +1,5 @@
-import {SeriesScriptRunner} from '../../../src/script-runners/index';
-import {MockRunnerFactory} from '../../../src/runners/index';
-import {MockOutput} from '../../../src/outputs/index';
+import {MockChildProcessFactory} from '@imba/spawn';
+import {SeriesScriptRunner} from '../../../src/script-runners';
 import {Imba} from '../../../src/imba';
 import {Project} from '../../../src/project';
 import {Script} from '../../../src/script';
@@ -8,7 +7,7 @@ import {expect} from 'chai';
 
 
 let imba: Imba;
-let runnerFactory: MockRunnerFactory;
+let childProcessFactory: MockChildProcessFactory;
 let scriptRunner: SeriesScriptRunner;
 
 
@@ -16,14 +15,14 @@ describe('#ScriptRunners/SeriesScriptRunner', () => {
 
 	beforeEach(() => {
 		imba = new Imba;
-		runnerFactory = new MockRunnerFactory;
-		scriptRunner = new SeriesScriptRunner(runnerFactory, new MockOutput);
+		childProcessFactory = new MockChildProcessFactory;
+		scriptRunner = new SeriesScriptRunner(childProcessFactory);
 	});
 
 	describe('runScript()', () => {
 
 		it('should run script on two projects in series', async () => {
-			runnerFactory.commands['sleep'] = (runner) => {
+			childProcessFactory.commands['sleep'] = (runner) => {
 				runner.timeout = 500;
 			};
 

@@ -1,5 +1,5 @@
+import {ChildProcessFactory, ChildProcess} from '@imba/spawn';
 import {Command} from './command';
-import {RunnerFactory, Runner} from '../runners';
 import {RunContext} from '../run-context';
 import {Imba} from '../imba';
 
@@ -14,20 +14,20 @@ export class CmdCommand extends Command
 {
 
 
-	private runnerFactory: RunnerFactory;
+	private childProcessFactory: ChildProcessFactory;
 
 	private cmd: string;
 
 	private options: CmdCommandOptions;
 
-	private currentRunner: Runner;
+	private currentChildProcess: ChildProcess;
 
 
-	constructor(imba: Imba, runnerFactory: RunnerFactory, cmd: string, options: CmdCommandOptions = {})
+	constructor(imba: Imba, childProcessFactory: ChildProcessFactory, cmd: string, options: CmdCommandOptions = {})
 	{
 		super(imba, cmd);
 
-		this.runnerFactory = runnerFactory;
+		this.childProcessFactory = childProcessFactory;
 		this.cmd = cmd;
 		this.options = options;
 	}
@@ -35,14 +35,14 @@ export class CmdCommand extends Command
 
 	public async run(ctx: RunContext): Promise<number>
 	{
-		if (this.currentRunner) {
+		if (this.currentChildProcess) {
 			this.onStderr.emit(`Command ${this.cmd} is already running.`);
 			this.onEnd.emit(1);
 
 			return 1;
 		}
 
-		const cmd = this.currentRunner = this.runnerFactory.createRunner(ctx.project.root, this.cmd, ctx.env);
+		const cmd = this.currentChildProcess = this.childProcessFactory.create(ctx.project.root, this.cmd, ctx.env);
 
 		cmd.onStart.subscribe(() => this.onStart.emit(this));
 		cmd.onFinish.subscribe((returnCode) => this.onEnd.emit(returnCode));
@@ -51,7 +51,7 @@ export class CmdCommand extends Command
 
 		const returnCode = await cmd.run();
 
-		this.currentRunner = undefined;
+		this.currentChildProcess = undefined;
 
 		return returnCode;
 	}
@@ -61,8 +61,8 @@ export class CmdCommand extends Command
 	{
 		super.kill(overrideSignal);
 
-		if (this.currentRunner) {
-			this.currentRunner.kill(overrideSignal);
+		if (this.currentChildProcess) {
+			this.currentChildProcess.kill(overrideSignal);
 		}
 	}
 

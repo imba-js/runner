@@ -1,7 +1,7 @@
 import {Output, Readline, Questions} from '@imba/stdio';
+import {ChildProcessFactory} from '@imba/spawn';
 import {ParallelScriptPrinter, ScriptPrinter, SeriesScriptPrinter, ProjectCommandPrinter} from './printers';
 import {ParallelScriptRunner, ScriptRunner, SeriesScriptRunner} from './script-runners';
-import {RunnerFactory} from './runners';
 import {InputsList, Input, AnswersList} from './input';
 import {Imba} from './imba';
 import {Script, ScriptMode} from './script';
@@ -15,20 +15,20 @@ export class Executor
 {
 
 
-	private imba: Imba;
+	private childProcessFactory: ChildProcessFactory;
 
 	private output: Output;
 
 	private rl: Readline;
 
-	private runnerFactory: RunnerFactory;
+	private imba: Imba;
 
 	private currentCommands: Array<Command> = [];
 
 
-	constructor(runnerFactory: RunnerFactory, output: Output, rl: Readline, imba: Imba)
+	constructor(childProcessFactory: ChildProcessFactory, output: Output, rl: Readline, imba: Imba)
 	{
-		this.runnerFactory = runnerFactory;
+		this.childProcessFactory = childProcessFactory;
 		this.output = output;
 		this.rl = rl;
 		this.imba = imba;
@@ -122,12 +122,12 @@ export class Executor
 
 	public runProjectCommand(project: Project, command: string): Promise<number>
 	{
-		const runner = this.runnerFactory.createRunner(project.root, command, createScriptEnvironment());
+		const childProcess = this.childProcessFactory.create(project.root, command, createScriptEnvironment());
 		const printer = new ProjectCommandPrinter(this.output);
 
-		printer.enable(runner, project);
+		printer.enable(childProcess, project);
 
-		return runner.run();
+		return childProcess.run();
 	}
 
 
@@ -155,10 +155,10 @@ export class Executor
 		let scriptPrinter: ScriptPrinter;
 
 		if (script.getMode() === ScriptMode.Series) {
-			runner = new SeriesScriptRunner(this.runnerFactory);
+			runner = new SeriesScriptRunner(this.childProcessFactory);
 			scriptPrinter = new SeriesScriptPrinter(this.output);
 		} else {
-			runner = new ParallelScriptRunner(this.runnerFactory);
+			runner = new ParallelScriptRunner(this.childProcessFactory);
 			scriptPrinter = new ParallelScriptPrinter(this.output);
 		}
 

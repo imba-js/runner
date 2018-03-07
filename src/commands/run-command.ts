@@ -1,9 +1,9 @@
+import {ChildProcessFactory} from '@imba/spawn';
 import {Command} from './command';
 import {RunContext} from '../run-context';
 import {Script} from '../script';
 import {Imba} from '../imba';
 import {Input} from '../input';
-import {RunnerFactory} from '../runners';
 import {SeriesScriptRunner} from '../script-runners';
 import * as _ from 'lodash';
 import chalk from 'chalk';
@@ -13,18 +13,18 @@ export class RunCommand extends Command
 {
 
 
-	private _runnerFactory: RunnerFactory;
+	private _childProcessFactory: ChildProcessFactory;
 
 	private _scriptName: string;
 
 	private _script: Script;
 
 
-	constructor(imba: Imba, runnerFactory: RunnerFactory, script: string)
+	constructor(imba: Imba, childProcessFactory: ChildProcessFactory, script: string)
 	{
 		super(imba, `Script: ${script}`);
 
-		this._runnerFactory = runnerFactory;
+		this._childProcessFactory = childProcessFactory;
 		this._scriptName = script;
 	}
 
@@ -32,7 +32,7 @@ export class RunCommand extends Command
 	public async run(ctx: RunContext): Promise<number>
 	{
 		const script = this.getScript();
-		const scriptRunner = new SeriesScriptRunner(this._runnerFactory);
+		const scriptRunner = new SeriesScriptRunner(this._childProcessFactory);
 
 		if (!script.isAllowedForProject(ctx.project)) {
 			this.onStderr.emit(`Can not run script ${script.name} inside of script ${this._scriptName} for project ${ctx.project.name}.`);

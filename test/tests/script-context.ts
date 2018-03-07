@@ -1,6 +1,8 @@
+import {MockChildProcessFactory} from '@imba/spawn';
 import {ScriptContext} from '../../src/script-context';
+import {Script} from '../../src/script';
 import {CmdCommand} from '../../src/commands';
-import {MockRunnerFactory} from '../../src/runners';
+import {Imba} from '../../src';
 import {expect} from 'chai';
 
 
@@ -10,7 +12,8 @@ let scriptCtx: ScriptContext;
 describe('#ScriptContext', () => {
 
 	beforeEach(() => {
-		scriptCtx = new ScriptContext(new MockRunnerFactory);
+		const imba = new Imba;
+		scriptCtx = new ScriptContext(imba, new MockChildProcessFactory, new Script(imba, '', () => {}));
 	});
 
 	it('should work with commands storage', () => {

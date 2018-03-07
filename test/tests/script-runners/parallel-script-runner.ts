@@ -1,6 +1,5 @@
+import {MockChildProcessFactory} from '@imba/spawn';
 import {ParallelScriptRunner} from '../../../src/script-runners/index';
-import {MockRunnerFactory} from '../../../src/runners/index';
-import {MockOutput} from '../../../src/outputs/index';
 import {Imba} from '../../../src/imba';
 import {Project} from '../../../src/project';
 import {Script} from '../../../src/script';
@@ -8,7 +7,7 @@ import {expect} from 'chai';
 
 
 let imba: Imba;
-let runnerFactory: MockRunnerFactory;
+let childProcessFactory: MockChildProcessFactory;
 let scriptRunner: ParallelScriptRunner;
 
 
@@ -16,14 +15,14 @@ describe('#ScriptRunners/ParallelScriptRunner', () => {
 
 	beforeEach(() => {
 		imba = new Imba;
-		runnerFactory = new MockRunnerFactory;
-		scriptRunner = new ParallelScriptRunner(runnerFactory, new MockOutput);
+		childProcessFactory = new MockChildProcessFactory;
+		scriptRunner = new ParallelScriptRunner(childProcessFactory);
 	});
 
 	describe('runScript()', () => {
 
 		it('should run script on two projects in parallel', async () => {
-			runnerFactory.commands['sleep'] = (runner) => {
+			childProcessFactory.commands['sleep'] = (runner) => {
 				runner.timeout = 500;
 			};
 

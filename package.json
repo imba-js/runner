@@ -25,6 +25,7 @@
 	},
 	"dependencies": {
 		"@imba/event-emitter": "^0.0.2",
+		"@imba/spawn": "^0.0.1",
 		"@imba/stdio": "^1.0.0",
 		"chalk": "^2.3.0",
 		"lodash": "^4.17.4",
@@ -45,7 +46,7 @@
 	"scripts": {
 		"build": "tsc",
 		"watch": "tsc --watch",
-		"test": "mocha -r ts-node/register test/tests/**/*.ts",
+		"test": "mocha -r ts-node/register test/tests/*.ts test/tests/**/*.ts",
 		"prepublish": "yarn run build",
 		"pretest": "yarn run build"
 	}

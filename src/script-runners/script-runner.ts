@@ -1,5 +1,5 @@
 import {EventEmitter} from '@imba/event-emitter';
-import {RunnerFactory} from '../runners';
+import {ChildProcessFactory} from '@imba/spawn';
 import {Command} from '../commands';
 import {ScriptContext} from '../script-context';
 import {Project} from '../project';
@@ -58,12 +58,12 @@ export abstract class ScriptRunner
 
 	public onCommandStderr: EventEmitter<ScriptCommandOutputArg> = new EventEmitter<ScriptCommandOutputArg>();
 
-	private runnerFactory: RunnerFactory;
+	private childProcessFactory: ChildProcessFactory;
 
 
-	constructor(runnerFactory: RunnerFactory)
+	constructor(childProcessFactory: ChildProcessFactory)
 	{
-		this.runnerFactory = runnerFactory;
+		this.childProcessFactory = childProcessFactory;
 	}
 
 
@@ -94,7 +94,7 @@ export abstract class ScriptRunner
 			IMBA_PROJECT_NAME: projectName,
 		}), inputAnswers);
 
-		const returnCode = await this.runScriptStack(project, script.createScriptContext(this.runnerFactory, ctx), ctx, dry);
+		const returnCode = await this.runScriptStack(project, script.createScriptContext(this.childProcessFactory, ctx), ctx, dry);
 
 		this.onProjectEnd.emit({
 			project: project,

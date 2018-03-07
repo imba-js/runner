@@ -6,6 +6,12 @@
   version "0.0.2"
   resolved "https://registry.yarnpkg.com/@imba/event-emitter/-/event-emitter-0.0.2.tgz#ac352a47e656166e2a8df2627edfcd11a3d4827d"
 
+"@imba/spawn@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@imba/spawn/-/spawn-0.0.1.tgz#7b89b44ac8dab3bd1bcdbe9073e1fa85f1fba459"
+  dependencies:
+    "@imba/event-emitter" "^0.0.2"
+
 "@imba/stdio@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@imba/stdio/-/stdio-1.0.0.tgz#051954d73b5be2a388a9d93b099f944685a3c601"

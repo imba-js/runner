@@ -1,6 +1,6 @@
+import {MockChildProcessFactory} from '@imba/spawn';
 import {Printer} from './printer';
 import {Imba} from '../imba';
-import {MockRunnerFactory} from '../runners';
 import {RunContext, RunState} from '../run-context';
 import {Script} from '../script';
 import {Project} from '../project';
@@ -17,7 +17,7 @@ export class InfoPrinter extends Printer
 
 	public printInfo(configFile: string, imba: Imba): void
 	{
-		const runnerFactory = new MockRunnerFactory;
+		const childProcessFactory = new MockChildProcessFactory;
 
 		this.output.log(chalk.bold.blue('Configuration'));
 		this.printSeparator();
@@ -87,7 +87,7 @@ export class InfoPrinter extends Printer
 
 					_.forEach(script.getBeforeScripts(), (beforeScript: Script) => {
 						if (beforeScript.isHidden()) {
-							_.forEach(beforeScript.createScriptContext(runnerFactory, runContext).getCommands(), (command: Command) => {
+							_.forEach(beforeScript.createScriptContext(childProcessFactory, runContext).getCommands(), (command: Command) => {
 								this.output.log(`        - Command: ${command.name}`);
 							});
 
@@ -102,7 +102,7 @@ export class InfoPrinter extends Printer
 
 					_.forEach(script.getAfterScripts(), (afterScript: Script) => {
 						if (afterScript.isHidden()) {
-							_.forEach(afterScript.createScriptContext(runnerFactory, runContext).getCommands(), (command: Command) => {
+							_.forEach(afterScript.createScriptContext(childProcessFactory, runContext).getCommands(), (command: Command) => {
 								this.output.log(`        - Command: ${command.name}`);
 							});
 
@@ -114,7 +114,7 @@ export class InfoPrinter extends Printer
 
 				this.output.log(`      ${chalk.magenta('script')}`);
 
-				_.forEach(script.createScriptContext(runnerFactory, runContext).getCommands(), (command: Command) => {
+				_.forEach(script.createScriptContext(childProcessFactory, runContext).getCommands(), (command: Command) => {
 					this.output.log(`        - Command: ${command.name}`);
 				});
 			});

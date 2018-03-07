@@ -1,8 +1,8 @@
+import {ChildProcessFactory, MockChildProcessFactory} from '@imba/spawn';
 import {ScriptContext} from './script-context';
 import {Input, InputOptions, InputsList} from './input';
 import {EnvironmentVariable} from './environment-variable';
 import {RunContext, RunState} from './run-context';
-import {RunnerFactory, MockRunnerFactory} from './runners';
 import {Project} from './project';
 import {Imba} from './imba';
 import * as _ from 'lodash';
@@ -62,7 +62,7 @@ export class Script
 
 	public loadConfiguration(): void
 	{
-		const ctx = this.createScriptContext(new MockRunnerFactory, new RunContext(RunState.Load, Project.createSystemProject()));
+		const ctx = this.createScriptContext(new MockChildProcessFactory, new RunContext(RunState.Load, Project.createSystemProject()));
 		const commands = ctx.getCommands();
 
 		for (let i = 0; i < commands.length; i++) {
@@ -73,9 +73,9 @@ export class Script
 	}
 
 
-	public createScriptContext(runnerFactory: RunnerFactory, ctx: RunContext): ScriptContext
+	public createScriptContext(childProcessFactory: ChildProcessFactory, ctx: RunContext): ScriptContext
 	{
-		const storage = new ScriptContext(this._imba, runnerFactory, this);
+		const storage = new ScriptContext(this._imba, childProcessFactory, this);
 		this._definition(storage, ctx);
 
 		return storage;
